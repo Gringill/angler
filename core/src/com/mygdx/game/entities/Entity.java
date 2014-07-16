@@ -7,4 +7,11 @@ public class Entity {
 	private Vector2 location;
 	private Sprite sprite;
 	
+	public void draw() {
+		
+	}
+	
+	public void step() {
+		
+	}
 }
