@@ -55,9 +55,11 @@ nbactions.xml
 nb-configuration.xml
 
 ## Gradle
-
+ui
 .gradle
 build/
 
 ## OS Specific
 .DS_Store
+
+core/assets/sheep_server.jar
