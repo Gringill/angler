@@ -63,3 +63,5 @@ build/
 .DS_Store
 
 core/assets/sheep_server.jar
+
+package_server.xml
