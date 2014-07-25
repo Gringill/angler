@@ -1,20 +1,26 @@
 package com.spoffordstudios.game;
 
+import java.awt.Point;
+import java.io.File;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
 import com.esotericsoftware.minlog.Log;
 import com.spoffordstudios.editor.Editor;
 import com.spoffordstudios.editor.Level;
+import com.spoffordstudios.editor.Util;
 import com.spoffordstudios.network.Net;
 
 /**
@@ -53,10 +59,10 @@ public class Game extends ApplicationAdapter {
 	public void create() {
 		camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		camera.position.set(Gdx.graphics.getWidth() / 2, Gdx.graphics.getHeight() / 2, 0);
-		Level level = Level.getDefaultLevel();
-
+		 Level level = Level.getDefaultLevel();
+//		Level level = Level.deserializeLevel(new File());
 		if (Editor.enabled()) {
-			Editor.setLevel(level);
+			Editor.openLevel(level);
 		} else {
 			Net.setupGameClient();
 			loadLevel(level);
@@ -66,6 +72,7 @@ public class Game extends ApplicationAdapter {
 
 	@Override
 	public void render() {
+		Sprite s;
 		handleInput();
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
@@ -81,11 +88,11 @@ public class Game extends ApplicationAdapter {
 			batch.begin();
 			for (Entity e : level.getTileGroup()) {
 				e.update();
-				batch.draw(e.draw(), e.getX() * 50, e.getY() * 50, 50, 50);
+				e.draw(batch);
 			}
 			batch.end();
 			ShapeRenderer sr = new ShapeRenderer();
-			sr.setColor(Color.BLACK);
+			sr.setColor(Color.WHITE);
 			sr.setProjectionMatrix(camera.combined);
 			sr.begin(ShapeType.Line);
 			for (int y = 0; y < level.getDimension().height; y++) {
@@ -98,9 +105,28 @@ public class Game extends ApplicationAdapter {
 			batch.begin();
 			for (Entity e : level.getEntities()) {
 				e.update();
-				batch.draw(e.draw(), e.getX() * 50, e.getY() * 50, 50, 50);
+				e.draw(batch);
 			}
 			batch.end();
+			sr.setColor(Color.GREEN);
+			sr.begin(ShapeType.Line);
+			for (Entity e : level.getEntities()) {
+				if (e.isSelected()) {
+					sr.circle(e.getX(), (e.getY()), e.getSize());
+				}
+			}
+			if (Editor.EDITOR != null) {
+				Point mouseLocalCoords = Editor.EDITOR.getCanvas().getMousePosition();
+				if (mouseLocalCoords != null) { // Editor.EDITOR.containsMouse()
+					Vector2 mouseWorldCoords = Util.getMouseWorldCoords(mouseLocalCoords);
+
+					if (Editor.EDITOR.getDragBeginPoint() != null) {
+						Vector2 begin = Editor.EDITOR.getDragBeginPoint();
+						sr.rect(begin.x, begin.y, mouseWorldCoords.x - begin.x, mouseWorldCoords.y - begin.y);
+					}
+					sr.end();
+				}
+			}
 		}
 		ScissorStack.popScissors();
 		Log.trace("Camera Properties: " + camera.position);
@@ -109,7 +135,7 @@ public class Game extends ApplicationAdapter {
 
 	public void loadLevel(Level level) {
 		this.level = level;
-		level.setup();
+		level.buildTileGroup();
 	}
 
 	public static Level getLevel() {
@@ -125,19 +151,23 @@ public class Game extends ApplicationAdapter {
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
 			if (camera.position.x > Gdx.graphics.getWidth() / 2)
-				camera.translate(-3 * (camera.zoom / 1), 0, 0);
+				camera.translate(-6, 0, 0);
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
 			if (camera.position.x < getLevel().getDimension().width * 50)
-				camera.translate(3 * (camera.zoom / 1), 0, 0);
+				camera.translate(6, 0, 0);
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
 			if (camera.position.y > Gdx.graphics.getHeight() / 2)
-				camera.translate(0, -3 * (camera.zoom / 1), 0);
+				camera.translate(0, -6, 0);
 		}
 		if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
 			if (camera.position.y < getLevel().getDimension().height * 50)
-				camera.translate(0, 3 * (camera.zoom / 1), 0);
+				camera.translate(0, 6, 0);
 		}
+	}
+
+	public OrthographicCamera getCamera() {
+		return camera;
 	}
 }
