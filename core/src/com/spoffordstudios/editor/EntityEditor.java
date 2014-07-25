@@ -20,9 +20,10 @@ import javax.swing.JTabbedPane;
 
 import com.spoffordstudios.game.Attribute;
 import com.spoffordstudios.game.Entity;
+import com.spoffordstudios.game.Game;
 
-public class ObjectEditor extends JFrame implements ActionListener {
-	private static final String OBBG_NAME = "Object Editor";
+public class EntityEditor extends JFrame implements ActionListener {
+	private static final String FRAME_NAME = "Entity Editor";
 	private static final String ACTION_DELETE = "delete";
 	private static final String ACTION_NEW = "new";
 	private JList<Entity> ls_entity = new JList<Entity>();
@@ -31,8 +32,8 @@ public class ObjectEditor extends JFrame implements ActionListener {
 	private Entity selectedEntity;
 	private DefaultListModel<Entity> mod_entity;
 
-	public ObjectEditor() {
-		super(OBBG_NAME);
+	public EntityEditor() {
+		super(FRAME_NAME);
 		JTabbedPane tabpane = new JTabbedPane();
 
 		JPanel entity_tab = new JPanel();
@@ -57,8 +58,10 @@ public class ObjectEditor extends JFrame implements ActionListener {
 				JList<Entity> list = (JList<Entity>) evt.getSource();
 				if (evt.getClickCount() == 1) {
 					int index = list.locationToIndex(evt.getPoint());
-					Entity e = ((Entity) mod_entity.get(index));
-					refreshAttributes(e);
+					if (index != -1) {
+						Entity e = ((Entity) mod_entity.get(index));
+						refreshAttributes(e);
+					}
 				}
 			}
 		});
@@ -90,14 +93,22 @@ public class ObjectEditor extends JFrame implements ActionListener {
 				JList<Attribute> list = (JList<Attribute>) evt.getSource();
 				if (evt.getClickCount() == 2) {
 					int index = list.locationToIndex(evt.getPoint());
-					String input = "";
-					Attribute item = ((Attribute) model_attribute.getElementAt(index));
-					if (item.getAttribute().equals(Attribute.ATTR_TEXTURE)) {
-						input = TexturePicker.execute(ObjectEditor.this);
-						Attribute.set(selectedEntity, item.getAttribute(), (item.setValue(input)));
-					} else {
-						input = ((String) JOptionPane.showInputDialog(null, item.getAttribute(), "Set Value", JOptionPane.QUESTION_MESSAGE, null, null, item.getValue()));
-						Attribute.set(selectedEntity, item.getAttribute(), (item.setValue(input)));
+					if (index != -1) {
+						String input = "";
+						Attribute item = ((Attribute) model_attribute.getElementAt(index));
+						if (item.getAttribute().equals(Attribute.ATTR_TEXTURE)) {
+							input = TexturePicker.execute(EntityEditor.this);
+							Attribute.set(selectedEntity, item.getAttribute(), (item.setValue(input)));
+							for (Entity e : Game.getLevel().getEntities()) {
+								if (e.getName().equals(selectedEntity.getName())) {
+									Attribute.set(e, item.getAttribute(), (item.setValue(input)));
+								}
+							}
+							Editor.EDITOR.getObjectPainter().rebuildIcons();
+						} else {
+							input = ((String) JOptionPane.showInputDialog(null, item.getAttribute(), "Set Value", JOptionPane.QUESTION_MESSAGE, null, null, item.getValue()));
+							Attribute.set(selectedEntity, item.getAttribute(), (item.setValue(input)));
+						}
 					}
 				}
 			}
@@ -105,13 +116,13 @@ public class ObjectEditor extends JFrame implements ActionListener {
 		model_attribute = new DefaultListModel<Attribute>();
 		ls_attribute.setModel(model_attribute);
 		center.add(ls_attribute);
-
 		JPanel ability_tab = new JPanel();
 		tabpane.addTab("Abilities", new ImageIcon("assets/unpacked/icon_abilities.png"), ability_tab);
-
 		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-		setBounds(0, 0, 760, 340);
+		setSize(380, 340);
+		setLocationRelativeTo(Editor.EDITOR);
 		setContentPane(tabpane);
+		setAlwaysOnTop(true);
 		setVisible(true);
 	}
 
@@ -120,13 +131,10 @@ public class ObjectEditor extends JFrame implements ActionListener {
 	}
 
 	private String getValidName(String name, int index) {
-		for (int i = 0; i < mod_entity.size(); i++) {
-			String c = mod_entity.getElementAt(i).toString();
-			if (c.toString().equals(name + String.valueOf(index))) {
-				return getValidName(name, index + 1);
-			}
+		if (isNameUnique(name + index)) {
+			return name + index;
 		}
-		return name + index;
+		return getValidName(name, ++index);
 	}
 
 	public void newEntity() {
@@ -135,10 +143,28 @@ public class ObjectEditor extends JFrame implements ActionListener {
 		mod_entity.addElement(new Entity(name, null, 0, 0));
 	}
 
+	private boolean isNameUnique(String name) {
+		for (int i = 0; i < mod_entity.size(); i++) {
+			String c = mod_entity.getElementAt(i).toString();
+			if (c.toString().equals(name)) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public boolean registerEntity(Entity e) {
+		if (isNameUnique(e.getName())) {
+			mod_entity.addElement(e.clone());
+			return true;
+		}
+		return false;
+	}
+
 	public void refreshAttributes(Entity e) {
 		selectedEntity = e;
 		model_attribute.clear();
-		for (Attribute a : Attribute.build(e)) {
+		for (Attribute a : Attribute.buildAttributeList(e)) {
 			model_attribute.addElement(a);
 		}
 	}
@@ -154,6 +180,13 @@ public class ObjectEditor extends JFrame implements ActionListener {
 			break;
 		default:
 			break;
+		}
+	}
+
+	public void registerEntityListModel(DefaultListModel newMod) {
+		mod_entity.removeAllElements();
+		for (int i = 0; i < newMod.size(); i++) {
+			mod_entity.addElement((Entity) newMod.get(i));
 		}
 	}
 }

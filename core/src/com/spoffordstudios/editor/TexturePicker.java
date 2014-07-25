@@ -57,7 +57,7 @@ public class TexturePicker extends JPanel {
 				JList<Attribute> list = (JList<Attribute>) evt.getSource();
 				int index = list.locationToIndex(evt.getPoint());
 				if (evt.getClickCount() == 1) {
-					texture = "bin/" + model_tex.get(index) + ".png";
+					texture = "bin/unpacked/" + model_tex.get(index) + ".png";
 					view.icon = new ImageIcon(texture);
 					view.repaint();
 				}
@@ -74,7 +74,7 @@ public class TexturePicker extends JPanel {
 		JPanel panel = new JPanel();
 		add(panel, BorderLayout.SOUTH);
 
-		setPreferredSize(new Dimension(600, 500));
+		setPreferredSize(new Dimension(275, 400));
 		setVisible(true);
 	}
 
