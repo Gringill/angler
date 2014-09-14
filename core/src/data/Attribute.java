@@ -1,16 +1,17 @@
-package com.spoffordstudios.game;
+package data;
 
 import java.util.ArrayList;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import com.badlogic.gdx.math.Vector2;
+import util.Vector2;
+
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.Json.Serializable;
 import com.badlogic.gdx.utils.JsonValue;
 import com.esotericsoftware.minlog.Log;
-import com.spoffordstudios.editor.Editor;
 
 public class Attribute extends JLabel implements Serializable {
 	public static final String ATTR_NAME = "Name";
@@ -22,6 +23,9 @@ public class Attribute extends JLabel implements Serializable {
 	public static final String ATTR_FACING = "Facing";
 	public static final String ATTR_WIDTH = "Width";
 	public static final String ATTR_HEIGHT = "Height";
+	public static final String ATTR_MOVE_SPEED = "Move Speed";
+	public static final String ATTR_PATHABILITY = "Pathability";
+	public static final String ATTR_COLOR = "Color";
 	public static final ArrayList<String> ATTRIBUTES = new ArrayList<String>();
 	static {
 		ATTRIBUTES.add(ATTR_NAME);
@@ -33,6 +37,9 @@ public class Attribute extends JLabel implements Serializable {
 		ATTRIBUTES.add(ATTR_FACING);
 		ATTRIBUTES.add(ATTR_WIDTH);
 		ATTRIBUTES.add(ATTR_HEIGHT);
+		ATTRIBUTES.add(ATTR_MOVE_SPEED);
+		ATTRIBUTES.add(ATTR_PATHABILITY);
+		ATTRIBUTES.add(ATTR_COLOR);
 	}
 	private boolean isDisabled;
 	String attribute;
@@ -46,14 +53,13 @@ public class Attribute extends JLabel implements Serializable {
 		this.value = value;
 	}
 
-	public static ArrayList<Attribute> buildAttributeList(Entity e) {
+	public static ArrayList<Attribute> buildAttributeList(GameObject e, ArrayList<String> attributes) {
 		ArrayList<Attribute> list = new ArrayList<Attribute>();
+		Attribute a;
 		for (String s : ATTRIBUTES) {
-			Attribute a = new Attribute(s, get(e, s));
-			if (s.equals(ATTR_NAME) || s.equals(ATTR_TEXTURE) || s.equals(ATTR_BUILDING)) {
-				a.disable();
+			if (attributes.contains(s)) {
+				list.add(new Attribute(s, get(e, s)));
 			}
-			list.add(a);
 		}
 		return list;
 	}
@@ -79,7 +85,7 @@ public class Attribute extends JLabel implements Serializable {
 		return attribute + " - " + value;
 	}
 
-	public static String get(Entity e, String attr) {
+	public static String get(GameObject e, String attr) {
 		switch (attr) {
 		case ATTR_NAME:
 			return e.getName();
@@ -99,14 +105,25 @@ public class Attribute extends JLabel implements Serializable {
 			return String.valueOf(e.getWidth());
 		case ATTR_HEIGHT:
 			return String.valueOf(e.getHeight());
+		case ATTR_MOVE_SPEED:
+			return String.valueOf(((Entity) e).getMoveSpeed());
+		case ATTR_PATHABILITY:
+			return String.valueOf(e.getPathability());
+		case ATTR_COLOR:
+			if (e instanceof Tile) {
+				Color c = ((Tile) e).getColor();
+				return (int) (c.r * 255) + ", " + (int) (c.g * 255) + ", " + (int) (c.b * 255) + ", " + (int) (c.a * 255);
+			} else {
+				Log.error("Get attribute error on: " + attr + "/n-> Attempted to change color of non-tile entity.");
+			}
+			return "";
 		default:
-			Log.error("Get attribute error on: " + attr);
-			return "<Unregistered Attribute>";
+			Log.error("Get attribute error on: " + attr + "/n-> Unregistered attribute.");
+			return "<Unregistered attribute>";
 		}
 	}
 
-	public static boolean set(Entity e, String attr, String val) {
-
+	public static boolean set(GameObject e, String attr, String val) {
 		switch (attr) {
 		case ATTR_NAME:
 			e.setName(val);
@@ -117,7 +134,7 @@ public class Attribute extends JLabel implements Serializable {
 					e.setHealth(Float.valueOf(val));
 					return true;
 				} catch (Exception e2) {
-					JOptionPane.showMessageDialog(Editor.EDITOR, "Failed to parse value, no changes commited.", "Woops", JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Failed to parse health, no changes commited.", "Woops", JOptionPane.WARNING_MESSAGE);
 				}
 			}
 			break;
@@ -130,7 +147,7 @@ public class Attribute extends JLabel implements Serializable {
 					e.setBuilding(Boolean.valueOf(val));
 					return true;
 				} catch (Exception e2) {
-					JOptionPane.showMessageDialog(Editor.EDITOR, "Failed to parse value, no changes commited.", "Woops", JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Failed to parse building, no changes commited.", "Woops", JOptionPane.WARNING_MESSAGE);
 				}
 
 			}
@@ -141,7 +158,7 @@ public class Attribute extends JLabel implements Serializable {
 					e.setSize(Float.valueOf(val));
 					return true;
 				} catch (Exception e2) {
-					JOptionPane.showMessageDialog(Editor.EDITOR, "Failed to parse value, no changes commited.", "Woops", JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Failed to parse size, no changes commited.", "Woops", JOptionPane.WARNING_MESSAGE);
 				}
 
 			}
@@ -153,7 +170,7 @@ public class Attribute extends JLabel implements Serializable {
 					e.setPosition(new Vector2(Float.valueOf(splitVal[0]), Float.valueOf(splitVal[1])));
 					return true;
 				} catch (Exception e2) {
-					JOptionPane.showMessageDialog(Editor.EDITOR, "Failed to parse value, no changes commited.", "Woops", JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Failed to parse position, no changes commited.", "Woops", JOptionPane.WARNING_MESSAGE);
 				}
 
 			}
@@ -164,7 +181,7 @@ public class Attribute extends JLabel implements Serializable {
 					e.setFacing(Float.valueOf(val));
 					return true;
 				} catch (Exception e2) {
-					JOptionPane.showMessageDialog(Editor.EDITOR, "Failed to parse value, no changes commited.", "Woops", JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Failed to parse facing, no changes commited.", "Woops", JOptionPane.WARNING_MESSAGE);
 				}
 
 			}
@@ -175,9 +192,8 @@ public class Attribute extends JLabel implements Serializable {
 					e.setWidth(Float.valueOf(val));
 					return true;
 				} catch (Exception e2) {
-					JOptionPane.showMessageDialog(Editor.EDITOR, "Failed to parse value, no changes commited.", "Woops", JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Failed to parse width, no changes commited.", "Woops", JOptionPane.WARNING_MESSAGE);
 				}
-
 			}
 			break;
 		case ATTR_HEIGHT:
@@ -186,9 +202,42 @@ public class Attribute extends JLabel implements Serializable {
 					e.setHeight(Float.valueOf(val));
 					return true;
 				} catch (Exception e2) {
-					JOptionPane.showMessageDialog(Editor.EDITOR, "Failed to parse value, no changes commited.", "Woops", JOptionPane.WARNING_MESSAGE);
+					JOptionPane.showMessageDialog(null, "Failed to parse height, no changes commited.", "Woops", JOptionPane.WARNING_MESSAGE);
 				}
-
+			}
+			break;
+		case ATTR_MOVE_SPEED:
+			if (val != null && val.length() > 0) {
+				try {
+					((Entity) e).setMoveSpeed(Float.valueOf(val));
+					return true;
+				} catch (Exception e2) {
+					JOptionPane.showMessageDialog(null, "Failed to parse move speed, no changes commited.", "Woops", JOptionPane.WARNING_MESSAGE);
+				}
+			}
+			break;
+		case ATTR_PATHABILITY:
+			if (val != null && val.length() > 0) {
+				try {
+					e.setPathability(Float.valueOf(val));
+					return true;
+				} catch (Exception e2) {
+					JOptionPane.showMessageDialog(null, "Failed to parse pathability from val: " + val, "Woops", JOptionPane.WARNING_MESSAGE);
+				}
+			}
+			break;
+		case ATTR_COLOR:
+			if (e instanceof Tile) {
+				try {
+					String[] channels = val.split(", ");
+					int r = Integer.valueOf(channels[0]);
+					int g = Integer.valueOf(channels[1]);
+					int b = Integer.valueOf(channels[2]);
+					int a = Integer.valueOf(channels[3]);
+					((Tile) e).setColor(new Color(r, g, b, a));
+				} catch (Exception e2) {
+					JOptionPane.showMessageDialog(null, "Failed to parse color, no changes commited.", "Woops", JOptionPane.WARNING_MESSAGE);
+				}
 			}
 			break;
 		default:

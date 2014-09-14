@@ -1,20 +1,25 @@
-package com.spoffordstudios.game;
+package data;
 
 import java.util.ArrayList;
 
+import util.Util;
+import util.Vector2;
+
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
-import com.spoffordstudios.editor.Util;
 
-public class Entity implements Json.Serializable {
+import engine.Game;
+import engine.NodeMap;
+
+public abstract class GameObject implements Json.Serializable {
+	public final ArrayList<String> myAttributes = new ArrayList<String>();
+	private Game game;
 	private String name;
-	private Vector2 position = new Vector2();
+	private Vector2 position = new Vector2(0, 0);
 	private float facing;
-	private Sprite sprite; // TODO replace with animations
-	// private ArrayList<Animation> animations = new ArrayList<Animation>();
+	private Sprite sprite;
 	private String texture = "bin/unpacked/cam.png";
 	private float health = 100;
 	private float size = 25;
@@ -22,38 +27,36 @@ public class Entity implements Json.Serializable {
 	private float height = 25;
 	private boolean isBuilding;
 	private boolean selected;
+	private int pathability = NodeMap.PATH_GROUND;
 
-	public Entity(String name, Sprite sprite, float x, float y) {
+	public GameObject(Game game, String name, Sprite sprite, float x, float y) {
+		this.game = game;
 		this.sprite = sprite;
 		this.name = name;
-		position.set(x, y);
+		setPosition(new Vector2(x, y));
 	}
 
-	public Entity(String name, float x, float y) {
-		String file = com.spoffordstudios.editor.Util.pullRegionFromTexture(texture);
-		this.sprite = new Sprite(Game.getLevel().getAtlas().findRegion(file));
+	public GameObject(Game game, String name, float x, float y) {
+		this.game = game;
+		String file = util.Util.pullRegionFromTexture(texture);
+		this.sprite = new Sprite(game.getLevel().getAtlas().findRegion(file));
 		this.name = name;
-		position.set(x, y);
+		setPosition(new Vector2(x, y));
 	}
 
-	public Entity() {
+	public GameObject(Game game) {
+		this.game = game;
+	}
+
+	GameObject() {
 
 	}
 
-	public void update() {
+	public abstract void update();
 
-	}
+	public abstract void draw(SpriteBatch batch);
 
-	public void draw(SpriteBatch batch) {
-		if (isBuilding()) {
-			Sprite sprite = new Sprite(Game.getLevel().getAtlas().findRegion("pathability_color"));
-			sprite.setSize(width, height);
-			batch.draw(sprite, (getX()) - (sprite.getWidth() / 2), (getY()) - (sprite.getHeight() / 2), (sprite.getWidth() / 2), (sprite.getHeight() / 2), sprite.getWidth(), sprite.getHeight(), 1, 1,
-					getFacing());
-		}
-		batch.draw(sprite, (getX()) - (sprite.getWidth() / 2), (getY()) - (sprite.getHeight() / 2), (sprite.getWidth() / 2), (sprite.getHeight() / 2), sprite.getWidth(), sprite.getHeight(), 1, 1,
-				getFacing());
-	}
+	public abstract void drawSelection(SpriteBatch batch);
 
 	public float getX() {
 		return position.x;
@@ -117,11 +120,11 @@ public class Entity implements Json.Serializable {
 	}
 
 	public Vector2 getPosition() {
-		return position.cpy();
+		return position.copy();
 	}
 
 	public void setPosition(Vector2 newPosition) {
-		position = newPosition;
+		position = newPosition.copy();
 	}
 
 	/**
@@ -132,52 +135,42 @@ public class Entity implements Json.Serializable {
 	 * @param sourceEntity
 	 * @return
 	 */
-	public void defineAs(Entity sourceEntity) {
-
-		ArrayList<Attribute> attributes = Attribute.buildAttributeList(sourceEntity);
+	public void defineAs(GameObject sourceEntity) {
+		ArrayList<Attribute> attributes = Attribute.buildAttributeList(sourceEntity, myAttributes);
 		for (Attribute a : attributes) {
-			Attribute.set(this, a.attribute, a.value);
+			Attribute.set(this, a.getAttribute(), a.getValue());
 		}
 		if (sourceEntity.getSprite() != null) {
 			setSprite(new Sprite(sourceEntity.getSprite()));
 		} else {
 			String atlasRegionName = Util.pullRegionFromTexture(texture);
-			sprite = new Sprite(Game.getLevel().getAtlas().findRegion(atlasRegionName));
+			sprite = new Sprite(game.getLevel().getAtlas().findRegion(atlasRegionName));
 		}
-
 	}
 
 	public void defineAs(ArrayList<Attribute> attributes) {
 		for (Attribute a : attributes) {
-			Attribute.set(this, a.attribute, a.value);
+			Attribute.set(this, a.getAttribute(), a.getValue());
 		}
 	}
 
 	/**
 	 * Returns a new entity defined as an exact shallow copy of this entity.
 	 */
-	public Entity clone() {
-		Entity e = new Entity();
-		e.defineAs(this);
-		return e;
-	}
-
-	@Override
-	public void write(Json json) {
-		json.writeValue("attributes", Attribute.buildAttributeList(this));
-	}
-
-	@Override
-	public void read(Json json, JsonValue jsonData) {
-		ArrayList<Attribute> list = json.readValue(ArrayList.class, jsonData.get("attributes"));
-		defineAs(list);
-		if (Game.getLevel().getAtlas() != null) {
-			sprite = new Sprite(Game.getLevel().getAtlas().findRegion(Util.pullRegionFromTexture(texture)));
-		}
-	}
+	public abstract GameObject clone();
 
 	public boolean isSelected() {
 		return selected;
+	}
+
+	public abstract void buildAttributes();
+
+	public Game getGame() {
+		return game;
+	}
+
+	public void setGame(Game game) {
+		this.game = game;
 	}
 
 	public float getFacing() {
@@ -206,5 +199,31 @@ public class Entity implements Json.Serializable {
 
 	public void setHeight(float height) {
 		this.height = height;
+	}
+
+	public int getPathability() {
+		return pathability;
+	}
+
+	public void setPathability(float newPathability) {
+		pathability = (int) newPathability;
+	}
+
+	public ArrayList<String> getAttributes() {
+		return myAttributes;
+	}
+
+	@Override
+	public void write(Json json) {
+		json.writeValue("attributes", Attribute.buildAttributeList(this, myAttributes));
+	}
+
+	@Override
+	public void read(Json json, JsonValue jsonData) {
+		ArrayList<Attribute> list = json.readValue(ArrayList.class, jsonData.get("attributes"));
+		defineAs(list);
+		if (game.getLevel() != null) {
+			sprite = new Sprite(game.getLevel().getAtlas().findRegion(Util.pullRegionFromTexture(texture)));
+		}
 	}
 }
