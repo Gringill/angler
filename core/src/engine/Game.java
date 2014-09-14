@@ -1,9 +1,10 @@
 package engine;
 
+import gui.GameInputHandler;
+
 import java.awt.Point;
 import java.util.ArrayList;
 
-import ui.GameInputHandler;
 import util.Logger;
 import util.Util;
 import util.Vector2;

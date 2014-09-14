@@ -1,5 +1,9 @@
 package engine;
 
+import gui.EditorInputHandler;
+import gui.EntityEditor;
+import gui.InputLevelCreation;
+
 import java.awt.BorderLayout;
 import java.awt.Canvas;
 import java.awt.Cursor;
@@ -28,9 +32,6 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingConstants;
 import javax.swing.filechooser.FileFilter;
 
-import ui.EditorInputHandler;
-import ui.EntityEditor;
-import ui.InputLevelCreation;
 import util.Logger;
 import util.Util;
 
