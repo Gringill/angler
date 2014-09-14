@@ -1,83 +1,139 @@
 
 atlas0.png
-size: 453,105
+size: 510,106
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
 black
   rotate: false
-  xy: 2, 5
+  xy: 2, 6
   size: 100, 100
   orig: 100, 100
   offset: 0, 0
   index: -1
-btn_delete
-  rotate: false
-  xy: 356, 73
-  size: 34, 32
-  orig: 34, 32
-  offset: 0, 0
-  index: -1
-btn_new
-  rotate: false
-  xy: 392, 73
-  size: 34, 32
-  orig: 34, 32
-  offset: 0, 0
-  index: -1
 cam
   rotate: false
-  xy: 104, 5
+  xy: 183, 31
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 circle_empty
   rotate: false
-  xy: 156, 57
+  xy: 285, 58
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 circle_filled
   rotate: false
-  xy: 206, 57
+  xy: 287, 8
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
+dirt
+  rotate: false
+  xy: 233, 56
+  size: 50, 50
+  orig: 50, 50
+  offset: 0, 0
+  index: -1
+fence_h
+  rotate: false
+  xy: 183, 4
+  size: 50, 25
+  orig: 50, 25
+  offset: 0, 0
+  index: -1
+fence_long_h
+  rotate: false
+  xy: 131, 81
+  size: 100, 25
+  orig: 100, 25
+  offset: 0, 0
+  index: -1
+fence_long_v
+  rotate: false
+  xy: 104, 6
+  size: 25, 100
+  orig: 25, 100
+  offset: 0, 0
+  index: -1
+fence_post
+  rotate: false
+  xy: 158, 2
+  size: 23, 25
+  orig: 23, 25
+  offset: 0, 0
+  index: -1
+fence_v
+  rotate: false
+  xy: 485, 56
+  size: 25, 50
+  orig: 25, 50
+  offset: 0, 0
+  index: -1
 gear
   rotate: false
-  xy: 256, 57
+  xy: 335, 58
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: -1
 grass
   rotate: false
-  xy: 104, 55
+  xy: 131, 29
   size: 50, 50
   orig: 50, 50
   offset: 0, 0
   index: -1
-pathability_color
+ic_entity
   rotate: false
-  xy: 2, 2
-  size: 1, 1
-  orig: 1, 1
+  xy: 337, 8
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+ic_error
+  rotate: false
+  xy: 385, 58
+  size: 48, 48
+  orig: 48, 48
+  offset: 0, 0
+  index: -1
+ic_tile
+  rotate: false
+  xy: 387, 8
+  size: 48, 48
+  orig: 48, 48
   offset: 0, 0
   index: -1
 sheep
   rotate: false
-  xy: 428, 80
+  xy: 131, 2
   size: 25, 25
   orig: 25, 25
   offset: 0, 0
   index: -1
 soccer
   rotate: false
-  xy: 306, 57
+  xy: 435, 58
   size: 48, 48
   orig: 48, 48
+  offset: 0, 0
+  index: -1
+water
+  rotate: false
+  xy: 235, 4
+  size: 50, 50
+  orig: 50, 50
+  offset: 0, 0
+  index: -1
+white_pixel
+  rotate: false
+  xy: 2, 3
+  size: 1, 1
+  orig: 1, 1
   offset: 0, 0
   index: -1
