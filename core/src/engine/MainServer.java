@@ -1,4 +1,4 @@
-package com.spoffordstudios.network;
+package engine;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -7,9 +7,10 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.minlog.Log;
-import com.spoffordstudios.network.Net.ChatMessage;
-import com.spoffordstudios.network.Net.RegisterName;
-import com.spoffordstudios.network.Net.UpdateNames;
+
+import engine.Net.ChatMessage;
+import engine.Net.RegisterName;
+import engine.Net.UpdateNames;
 
 public class MainServer {
 	Server server;

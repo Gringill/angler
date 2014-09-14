@@ -1,4 +1,4 @@
-package com.spoffordstudios.network;
+package engine;
 
 import java.awt.EventQueue;
 import java.io.IOException;
