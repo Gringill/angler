@@ -23,19 +23,43 @@ public class Entity extends KineticObject implements Json.Serializable {
 	private ArrayList<Vector2> path;
 	private PathFinder path_finder;
 	private int steering = 0;
+	private float leftFraction = 0;
+	private float rightFraction = 0;
+	private float leftAngleTowards;
+	private float rightAngleTowards;
+	private boolean leftCollided;
+	private boolean rightCollided;
 
 	private RayCastCallback lrcc = new RayCastCallback() {
 		@Override
 		public float reportRayFixture(Fixture fixture, com.badlogic.gdx.math.Vector2 point, com.badlogic.gdx.math.Vector2 normal, float fraction) {
-			steering = -1;
-			return 0;
+			if (fixture.getUserData() instanceof GameObject) {
+				if (((GameObject) fixture.getUserData()).getPathability() > getPathability()) {
+					System.out.println("lrcc " + fraction);
+					steering = -1;
+					Entity.this.leftFraction = fraction;
+					leftAngleTowards = Util.getAngleTowardsPoint(new Vector2(getBody().getPosition()), new Vector2(point), true);
+					leftCollided = true;
+					return 0;
+				}
+			}
+			return -1;
 		}
 	};
 	private RayCastCallback rrcc = new RayCastCallback() {
 		@Override
 		public float reportRayFixture(Fixture fixture, com.badlogic.gdx.math.Vector2 point, com.badlogic.gdx.math.Vector2 normal, float fraction) {
-			steering = 1;
-			return 0;
+			if (fixture.getUserData() instanceof GameObject) {
+				if (((GameObject) fixture.getUserData()).getPathability() > getPathability()) {
+					System.out.println("rrcc " + fraction);
+					steering = 1;
+					Entity.this.rightFraction = fraction;
+					rightAngleTowards = Util.getAngleTowardsPoint(new Vector2(getBody().getPosition()), new Vector2(point), true);
+					rightCollided = true;
+					return 0;
+				}
+			}
+			return -1;
 		}
 	};
 
@@ -87,23 +111,53 @@ public class Entity extends KineticObject implements Json.Serializable {
 		if (getBody() != null) {
 			setPosition((new Vector2(getBody().getPosition()).multiply(getGame().getUtil().getGameScale())));
 			steering = 0;
-			getGame().getWorld().rayCast(lrcc, getPosition(), getPosition().copy().applyPolarOffset(10, getFacing() + 45));
-			getGame().getWorld().rayCast(rrcc, getPosition(), getPosition().copy().applyPolarOffset(10, getFacing() - 45));
+			leftFraction = 0;
+			leftAngleTowards = 0;
+			leftCollided = false;
+			rightFraction = 0;
+			rightAngleTowards = 0;
+			rightCollided = false;
+			Vector2 bodyPosition = new Vector2(getBody().getPosition());
+			getGame().getWorld().rayCast(lrcc, bodyPosition, bodyPosition.copy().applyPolarOffset(getSize() * 2 / getGame().getUtil().getGameScale(), getFacing() + 45));
+			getGame().getWorld().rayCast(rrcc, bodyPosition, bodyPosition.copy().applyPolarOffset(getSize() * 2 / getGame().getUtil().getGameScale(), getFacing() - 45));
 		}
-
 		if (path != null && path.size() > 0) {
-			if (Util.getDistanceBetweenPoints(getPosition().copy(), path.get(0).copy().multiply(50f)) <= (getMoveSpeed() * 3)) {
-				// setPosition(path.get(0).copy().multiply(50f));
-				path.remove(0);
-				if (path.size() == 0) {
-					path = null;
-					if (getBody() != null) {
-						getBody().setLinearVelocity(new Vector2(0, 0));
+			if (path.size() == 1) {
+				if (Util.getDistanceBetweenPoints(getPosition().copy(), path.get(0).copy().multiply(50f)) <= getMoveSpeed()) {
+					setPosition(path.get(0).copy().multiply(50f));
+					path.remove(0);
+					if (path.size() == 0) {
+						path = null;
+						if (getBody() != null) {
+							getBody().setLinearVelocity(new Vector2(0, 0));
+						}
+					}
+				}
+			} else {
+				if (Util.getDistanceBetweenPoints(getPosition().copy(), path.get(0).copy().multiply(50f)) <= (getSize())) {
+					// setPosition(path.get(0).copy().multiply(50f));
+					path.remove(0);
+					if (path.size() == 0) {
+						path = null;
+						if (getBody() != null) {
+							getBody().setLinearVelocity(new Vector2(0, 0));
+						}
 					}
 				}
 			}
 			if (path != null && path.size() > 0) {
-				float angle = Util.getAngleTowardsPoint(getPosition().copy(), path.get(0).copy().multiply(50f), true) + (45 * steering);
+				float angle = Util.getAngleTowardsPoint(getPosition().copy(), path.get(0).copy().multiply(50f), true);
+				if (leftCollided && leftFraction <= rightFraction) {
+					// Left feeler's collision was closer
+					if (leftAngleTowards - getFacing() < 90) {
+						angle = Util.getAngleTowardsPoint(getPosition().copy(), path.get(0).copy().multiply(50f), true) + (((1 / leftFraction)) * -15);
+					}
+				} else if (rightCollided) {
+					// Right feeler's collision was closer
+					if (rightAngleTowards - getFacing() > 90) {
+						angle = Util.getAngleTowardsPoint(getPosition().copy(), path.get(0).copy().multiply(50f), true) + (((1 / rightFraction)) * 15);
+					}
+				}
 				setFacing(angle);
 				Vector2 force = Util.getVelocity(angle, getMoveSpeed());
 				if (getBody() != null) {
@@ -134,7 +188,7 @@ public class Entity extends KineticObject implements Json.Serializable {
 			batch.draw(getSprite(), (getX()) - (getSprite().getWidth() / 2), (getY()) - (getSprite().getHeight() / 2), (getSprite().getWidth() / 2), (getSprite().getHeight() / 2), getSprite()
 					.getWidth(), getSprite().getHeight(), 1, 1, getFacing());
 		}
-		if (path != null) {
+		if (path != null && path.size() > 0) {
 			for (Vector2 v : path) {
 				batch.setColor(1, 0, 0, 1);
 				batch.draw(getGame().getLevel().atlas.findRegion("white_pixel"), v.x * 50, v.y * 50, 1, 1, 4, 4, 1, 1, getFacing());
@@ -152,7 +206,8 @@ public class Entity extends KineticObject implements Json.Serializable {
 	public void issuePointCommand(String command, Vector2 goal) {
 		switch (command) {
 		case Game.COMMAND_MOVE:
-			path_finder.findThreadedPath(getPosition().copy().multiply(1f / 50f), goal.multiply(1f / 50f));
+			path_finder.findThreadedPath(getPosition().multiply((1f / getGame().getUtil().getGameScale()) * getPathFinder().getNodemap().getDensity()),
+					goal.multiply((1f / getGame().getUtil().getGameScale()) * getPathFinder().getNodemap().getDensity()));
 			break;
 		}
 	}
