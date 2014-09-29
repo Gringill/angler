@@ -5,7 +5,6 @@ import gui.GameInputHandler;
 import java.awt.Point;
 import java.util.ArrayList;
 
-import util.Logger;
 import util.Util;
 import util.Vector2;
 
@@ -20,6 +19,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
@@ -36,8 +36,7 @@ import data.Tile;
 /**
  * The core class of the Sheep Tag project. Contains only the game logic and
  * pertinent information as to the running instance of the game. All network
- * code is abstracted out of this class into the
- * {@link engine.Net Net} class.
+ * code is abstracted out of this class into the {@link engine.Net Net} class.
  * 
  * Responsible for creation of the initial LibGdx functionality, game state
  * creation, as well as maintaining the logic & render loop. In addition is the
@@ -57,7 +56,7 @@ public class Game extends ApplicationAdapter implements ContactListener {
 	private float width, height;
 	private ArrayList<Entity> selectedEntities = new ArrayList<Entity>();
 	private World world;
-	// private Box2DDebugRenderer debugRenderer;
+	private Box2DDebugRenderer debugRenderer;
 	private boolean drawBuildingPathing;
 	private boolean drawGrid;
 	private Util util = new Util(this);
@@ -75,7 +74,7 @@ public class Game extends ApplicationAdapter implements ContactListener {
 	public void create() {
 		world = new World(new Vector2(0, 0), true);
 		world.setContactListener(this);
-		// debugRenderer = new Box2DDebugRenderer();
+		debugRenderer = new Box2DDebugRenderer();
 		camera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		camera.position.set(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f, 0);
 		// Level level = Level.getDefaultLevel();
@@ -156,9 +155,7 @@ public class Game extends ApplicationAdapter implements ContactListener {
 				sr.rect(begin.x, begin.y, mouseWorldCoords.x - begin.x, mouseWorldCoords.y - begin.y);
 			}
 
-			// debugRenderer.render(world,
-			// camera.combined.cpy().scale(util.getGameScale(),
-			// util.getGameScale(), 1));
+			debugRenderer.render(world, camera.combined.cpy().scale(util.getGameScale(), util.getGameScale(), 1));
 			world.step(1 / 60f, 6, 2);
 		}
 		if (sr != null) {
@@ -233,6 +230,13 @@ public class Game extends ApplicationAdapter implements ContactListener {
 		return camera;
 	}
 
+	/**
+	 * Works with vector parameter directly
+	 * 
+	 * @param entities
+	 * @param command
+	 * @param goal
+	 */
 	public void issuePointCommand(ArrayList<Entity> entities, String command, Vector2 goal) {
 		for (Entity e : entities) {
 			e.issuePointCommand(command, goal);
