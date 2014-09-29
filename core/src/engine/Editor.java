@@ -386,7 +386,7 @@ public class Editor extends JFrame {
 		if (obj_editor == null) {
 			obj_editor = new EntityEditor(this);
 		} else {
-			Logger.log("Attempted to initialize the Object Editor after it has already been initialized.", 3);
+			Logger.log("Attempted to initialize the Object Editor after it has already been initialized.", "Editor", false);
 		}
 
 	}
