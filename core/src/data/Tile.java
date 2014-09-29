@@ -126,7 +126,7 @@ public class Tile extends KineticObject {
 		poly.setAsBox(.5f, .5f);
 		FixtureDef fixtureDef = new FixtureDef();
 		switch (getPathability()) {
-		case NodeMap.PATH_FLYING:
+		case NodeMap.PATH_SWIMMING:
 			fixtureDef.filter.categoryBits = Util.CATEGORY_WATER;
 			fixtureDef.filter.maskBits = Util.MASK_CLIP;
 			break;
