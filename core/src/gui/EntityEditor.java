@@ -170,7 +170,6 @@ public class EntityEditor extends JFrame implements ActionListener {
 	public void newEntity(String name, Sprite sprite) {
 		if (name == null || name.length() == 0) {
 			name = "Entity";
-			Logger.log("Attempted to create entity with invalid name", 1);
 		}
 		if (!isNameUnique(name)) {
 			name = getValidName(name, 0);
@@ -183,7 +182,7 @@ public class EntityEditor extends JFrame implements ActionListener {
 		Sprite sprite = null;
 		if (name == null || name.length() == 0) {
 			name = "Tile";
-			Logger.log("Attempted to create tile with invalid name", 3);
+			Logger.log("Attempted to create tile with invalid name", "EntityEditor", false);
 		}
 		if (texture == null || texture.length() == 0) {
 			sprite = new Sprite(editor.getGame().getLevel().getAtlas().findRegion(Util.removeExtention(Tile.DEFAULT_TEXTURE)));
