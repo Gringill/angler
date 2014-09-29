@@ -21,7 +21,6 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 
 import engine.Editor;
-import engine.Game;
 import engine.NodeMap;
 import engine.TileMap;
 
