@@ -94,10 +94,10 @@ public class Vector2 extends com.badlogic.gdx.math.Vector2 {
 		return edge;
 	}
 
-	public Vector2 applyPolarOffset(float offset, float angle) {
-		angle = (float) Math.toRadians(angle);
-		x += (float) (Math.cos(angle) * offset);
-		y += (float) (Math.sin(angle) * offset);
+	public Vector2 applyPolarOffset(double offset, double angle) {
+		angle = Math.toRadians(angle);
+		x += (Math.cos(angle) * offset);
+		y += (Math.sin(angle) * offset);
 		return this;
 	}
 
