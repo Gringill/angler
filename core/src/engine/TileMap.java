@@ -77,16 +77,22 @@ public class TileMap {
 	 * visually until level reload or a manual refresh of the tilegroup is
 	 * performed.
 	 * 
-	 * @param position
-	 * @param tile
+	 * @param worldPoint
+	 * @param tileType
 	 *            replaces the old tile at <code>position</code>
 	 */
-	public void setTile(Vector2 position, Tile tile) {
-		position.snapToWorldPoint((int) game.getUtil().getGameScale());
-		int x = (int) (position.x / game.getUtil().getGameScale());
-		int y = (int) (position.y / game.getUtil().getGameScale());
-		tiles[x][y].defineAs(tile, tile.getAttributes());
-		nodemap.updatePathability(x, y, tiles[x][y].getPathability());
+	public void setTileAtWorldPoint(Vector2 worldPoint, Tile tileType) {
+		worldPoint.snapToWorldPoint((int) game.getUtil().getGameScale());
+		float x = (worldPoint.x / game.getUtil().getGameScale());
+		float y = (worldPoint.y / game.getUtil().getGameScale());
+		tiles[(int) x][(int) y].defineAs(tileType, tileType.getAttributes());
+		x *= getNodeMap().getDensity();
+		y *= getNodeMap().getDensity();
+		for (float yIndex = y; yIndex < y + getNodeMap().getDensity(); yIndex++) {
+			for (float xIndex = x; xIndex < x + getNodeMap().getDensity(); xIndex++) {
+				nodemap.updatePathability((int) xIndex, (int) yIndex, tileType.getPathability());
+			}
+		}
 	}
 
 	public NodeMap getNodeMap() {
@@ -128,7 +134,6 @@ public class TileMap {
 
 	public Tile getTileAtWorldCoords(Vector2 v) {
 		v.multiply(1 / game.getUtil().getGameScale());
-		Logger.log("GetTileAtWorldCoords: Tile: " + v, 3);
 		return getTiles()[(int) (v.x)][(int) (v.y)];
 	}
 }
