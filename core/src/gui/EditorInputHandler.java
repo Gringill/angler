@@ -19,19 +19,31 @@ import engine.Game;
 public class EditorInputHandler implements InputProcessor {
 	private Editor editor;
 	private GameInputHandler gameInputHandler;
+	private Vector2 pointA, pointB;
 
 	public EditorInputHandler(Editor editor) {
 		this.editor = editor;
 	}
 
-	public void leftClick(float screenX, float screenY) {
-		Logger.log("Left Click.", 3);
+	public void leftClick(int screenX, int screenY) {
 		float shortestDist = 9999999999f;
 		float dist;
 		Entity ent = null;
 		Vector2 worldCoords = editor.getGame().getUtil().getMouseWorldCoords(new Vector2(screenX, screenY), true);
-		if (editor.isObjectMode()) {
-			Logger.log("Object Mode.", 3);
+		System.out.println("Screen Coords: "
+				+ screenX
+				+ " "
+				+ screenY
+				+ " World Coords: "
+				+ worldCoords
+				+ " Boolean: "
+				+ editor.getGame()
+						.getLevel()
+						.getTileMap()
+						.getNodeMap()
+						.isPathableAtNodePoint(0, (int) (worldCoords.x / 50 * editor.getGame().getLevel().getTileMap().getNodeMap().getDensity()),
+								(int) (worldCoords.y / 50 * editor.getGame().getLevel().getTileMap().getNodeMap().getDensity())));
+		if (editor.isObjectMode()) { // TODO put entities into quad-trees
 			for (Entity e2 : editor.getGame().getLevel().getEntities()) {
 				dist = Util.getDistanceBetweenPoints(e2.getPosition(), worldCoords);
 				if (dist < e2.getSize() && dist < shortestDist) {
@@ -49,7 +61,25 @@ public class EditorInputHandler implements InputProcessor {
 				editor.setSubText("Selected unit of type [" + ent.getName() + "]");
 			}
 		} else {
-			Logger.log("Tile Mode.", 3);
+			if (pointA == null) {
+				pointA = worldCoords.copy();
+			} else {
+				pointB = worldCoords.copy();
+				Logger.log(
+						"LOS from "
+								+ pointA
+								+ " to "
+								+ pointB
+								+ ": "
+								+ editor.getGame()
+										.getLevel()
+										.getTileMap()
+										.getNodeMap()
+										.lineOfSight(0, pointA.multiply(1f / 50 * editor.getGame().getLevel().getTileMap().getNodeMap().getDensity()),
+												pointB.multiply(1f / 50 * editor.getGame().getLevel().getTileMap().getNodeMap().getDensity())), "Tag1", true);
+				pointA = null;
+				pointB = null;
+			}
 			Tile tile = editor.getGame().getLevel().getTileMap().getTileAtWorldCoords(worldCoords);
 			editor.setSelectedTile(tile);
 		}
@@ -82,7 +112,6 @@ public class EditorInputHandler implements InputProcessor {
 				editor.getGame().getLevel().getEntities().remove(e);
 				editor.getGame().getMinimap().unregisterEntity(e);
 			}
-
 			break;
 		case Input.Keys.B:
 			for (Entity e : editor.getGame().getSelectedEntities()) {
@@ -116,7 +145,6 @@ public class EditorInputHandler implements InputProcessor {
 						float shortestDist = 500;
 						float dist;
 						Entity ent = null;
-
 						for (Entity e2 : editor.getGame().getLevel().getEntities()) {
 							dist = Util.getDistanceBetweenPoints(e2.getPosition(), editor.getGame().getUtil().getMouseWorldCoords(new Vector2(screenX, screenY), true));
 							if (dist < e2.getSize() && dist < shortestDist) {
@@ -145,25 +173,24 @@ public class EditorInputHandler implements InputProcessor {
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 		if (editor.getGame().getLevel() != null) {
 			if (editor.doEdit()) {
-				Vector2 end = editor.getGame().getUtil().getMouseWorldCoords(new Vector2(screenX, screenY), true);
+				Vector2 worldTouchPoint = editor.getGame().getUtil().getMouseWorldCoords(new Vector2(screenX, screenY), true);
 				if (editor.isPaintMode()) { // Paint entity
 					if (editor.getObjectEditor().getPainter().getSelectedTile() == null) {
 						Entity newEntity = editor.getEntityCursor().clone();
 						editor.getGame().getMinimap().registerEntity(newEntity);
 						editor.getGame().getLevel().addEntity(newEntity);
 					} else { // Paint tile
-						editor.getGame().getLevel().getTileMap().setTile(end, editor.getObjectEditor().getPainter().getSelectedTile());
+						editor.getGame().getLevel().getTileMap().setTileAtWorldPoint(worldTouchPoint, editor.getObjectEditor().getPainter().getSelectedTile());
 					}
-				} else if (gameInputHandler.getDragBeginPoint() == null || gameInputHandler.getDragBeginPoint().equals(end)) { // Single
+				} else if (gameInputHandler.getDragBeginPoint() == null || gameInputHandler.getDragBeginPoint().equals(worldTouchPoint)) { // Single
 					// left click (press and release in same spot)
 					leftClick(screenX, screenY);
 				} else {
-					Rectangle r = Util.getPleasantRectangle(gameInputHandler.getDragBeginPoint(), end);
+					Rectangle r = Util.getPleasantRectangle(gameInputHandler.getDragBeginPoint(), worldTouchPoint);
 					editor.select(r);
 				}
 			} else {
 				if (button == Buttons.RIGHT) {
-					editor.getGame();
 					editor.getGame().issuePointCommand(editor.getGame().getSelectedEntities(), Game.COMMAND_MOVE, editor.getGame().getUtil().getMouseWorldCoords(new Vector2(screenX, screenY), true));
 				}
 			}
