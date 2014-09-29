@@ -21,9 +21,11 @@ public class PathSmoother {
 
 	public ArrayList<Vector2> funnel(int pathability, ArrayList<Vector2> path) {
 		ArrayList<Vector2[]> portals = buildPortals(path);
+		System.out.print("Portals:");
 		leftIndex = 0;
 		rightIndex = 1;
 		for (Vector2[] portal : portals) {
+			System.out.print(" [" + portal[0] + ", " + portal[1] + "]");
 			leftVertices.add(portal[0]);
 			rightVertices.add(portal[1]);
 		}
@@ -56,7 +58,7 @@ public class PathSmoother {
 		Vector2 previousVertex, leftVertex = leftVertices.get(li), rightVertex = rightVertices.get(ri);
 
 		if (leftSide) {
-			if (getLinePointRelationship(apex, leftVertex, rightVertex) <= 0) {
+			if (getLinePointRelationship(apex, leftVertex, rightVertex) < 0) {
 
 				rightIndex = ri;
 				leftIndex = li;
@@ -66,7 +68,7 @@ public class PathSmoother {
 				return;
 			}
 		} else {
-			if (getLinePointRelationship(apex, rightVertex, leftVertex) >= 0) {
+			if (getLinePointRelationship(apex, rightVertex, leftVertex) > 0) {
 
 				rightIndex = ri;
 				leftIndex = li;
@@ -115,25 +117,31 @@ public class PathSmoother {
 	}
 
 	private ArrayList<Vector2[]> buildPortals(ArrayList<Vector2> path) {
+		System.out.println("Build Portals");
 		ArrayList<Vector2[]> portals = new ArrayList<>();
-		Vector2 startV = path.get(0).copy().snapToWorldPoint(1);
+		Vector2 vStart = path.get(0).copy();
+		System.out.println("Start Node: " + vStart + "Snapped to: " + vStart.snapToWorldPoint(1));
 		Vector2[] startPortal = new Vector2[2];
-		switch (startV.headingTowards(path.get(1))) {
+		switch (vStart.headingTowards(path.get(1))) {
 		case Vector2.NORTH:
-			startPortal[0] = new Vector2(startV.x, startV.y);
-			startPortal[1] = new Vector2(startV.x + 1, startV.y);
+			System.out.println("North");
+			startPortal[0] = new Vector2(vStart.x, vStart.y);
+			startPortal[1] = new Vector2(vStart.x + 1, vStart.y);
 			break;
 		case Vector2.EAST:
-			startPortal[0] = new Vector2(startV.x, startV.y + 1);
-			startPortal[1] = new Vector2(startV.x, startV.y);
+			System.out.println("East");
+			startPortal[0] = new Vector2(vStart.x, vStart.y + 1);
+			startPortal[1] = new Vector2(vStart.x, vStart.y);
 			break;
 		case Vector2.SOUTH:
-			startPortal[0] = new Vector2(startV.x + 1, startV.y + 1);
-			startPortal[1] = new Vector2(startV.x, startV.y + 1);
+			System.out.println("South");
+			startPortal[0] = new Vector2(vStart.x + 1, vStart.y + 1);
+			startPortal[1] = new Vector2(vStart.x, vStart.y + 1);
 			break;
 		case Vector2.WEST:
-			startPortal[0] = new Vector2(startV.x + 1, startV.y);
-			startPortal[1] = new Vector2(startV.x + 1, startV.y + 1);
+			System.out.println("West");
+			startPortal[0] = new Vector2(vStart.x + 1, vStart.y);
+			startPortal[1] = new Vector2(vStart.x + 1, vStart.y + 1);
 			break;
 		}
 		portals.add(startPortal);
