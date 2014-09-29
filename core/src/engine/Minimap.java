@@ -74,7 +74,7 @@ public class Minimap extends JPanel implements MouseMotionListener {
 			// Draw camera to minimap
 			g.setColor(Color.YELLOW);
 			OrthographicCamera camera = game.getCamera();
-			Vector2 botLeft = Util.flipY(game.getUtil().getCamBottomLeft(camera), (float) (game.getLevel().getTileMap().getSize().getHeight() * game.getUtil().getGameScale()));
+			Vector2 botLeft = Util.flipY(game.getUtil().getCamBottomLeft(camera));
 			w = (camera.viewportWidth * xScale) + 1;
 			h = (camera.viewportHeight * yScale) + 1;
 			x = (botLeft.x * xScale);
