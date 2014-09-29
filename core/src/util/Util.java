@@ -59,7 +59,7 @@ public class Util {
 		cam.sub((new Vector2(camera.viewportWidth / 2, camera.viewportHeight / 2)));
 
 		if (doFlipY) {
-			localMouse = Util.flipY(localMouse, Gdx.graphics.getHeight());
+			Util.flipY(localMouse);
 		}
 
 		localMouse.add(cam);
@@ -157,9 +157,8 @@ public class Util {
 		return botLeft;
 	}
 
-	public static Vector2 flipY(Vector2 v, float h) {
-		v.y = h - v.y;
-		return v;
+	public static void flipY(Vector2 v) {
+		v.y = Gdx.graphics.getHeight() - v.y;
 	}
 
 	public static Point flipY(Point p, float h) {
