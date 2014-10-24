@@ -4,7 +4,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 
 public abstract class KineticObject extends GameObject {
 	private Body body;
-	private float movespeed = 3;
+	private float movespeed = 1.5f;
 
 	public abstract void generatePhysicsBody();
 

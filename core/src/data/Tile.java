@@ -50,7 +50,7 @@ public class Tile extends KineticObject {
 	public void draw(SpriteBatch batch) {
 		float sWidth = getGame().getUtil().getGameScale();
 		float sHeight = getGame().getUtil().getGameScale();
-		batch.draw(getSprite(), (getX()), (getY()), (sWidth / 2), (sHeight / 2), sWidth, sHeight, 1, 1, getFacing());
+		batch.draw(getSprite(), (getX()), (getY()), (sWidth / 2), (sHeight / 2), sWidth, sHeight, 1, 1, getFacing().angle());
 	}
 
 	@Override
@@ -60,7 +60,7 @@ public class Tile extends KineticObject {
 		Sprite sprite = new Sprite(getGame().getLevel().getAtlas().findRegion("white_pixel"));
 		Color oldColor = batch.getColor();
 		batch.setColor(1, 1, 1, .30f);
-		batch.draw(sprite, (getX()), (getY()), (sWidth / 2), (sHeight / 2), sWidth, sHeight, 1, 1, getFacing());
+		batch.draw(sprite, (getX()), (getY()), (sWidth / 2), (sHeight / 2), sWidth, sHeight, 1, 1, getFacing().angle());
 		batch.setColor(oldColor);
 	}
 

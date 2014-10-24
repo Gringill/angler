@@ -22,13 +22,16 @@ import engine.Game;
 public class Entity extends KineticObject implements Json.Serializable {
 	private ArrayList<Vector2> path;
 	private PathFinder path_finder;
+
 	private int steering = 0;
 	private float leftFraction = 0;
 	private float rightFraction = 0;
-	private float leftAngleTowards;
-	private float rightAngleTowards;
+	private float frontFraction = 0;
+	private double leftAngleTowards;
+	private double rightAngleTowards;
 	private boolean leftCollided;
 	private boolean rightCollided;
+	private boolean frontCollided;
 
 	private RayCastCallback lrcc = new RayCastCallback() {
 		@Override
@@ -38,7 +41,7 @@ public class Entity extends KineticObject implements Json.Serializable {
 					System.out.println("lrcc " + fraction);
 					steering = -1;
 					Entity.this.leftFraction = fraction;
-					leftAngleTowards = Util.getAngleTowardsPoint(new Vector2(getBody().getPosition()), new Vector2(point), true);
+					leftAngleTowards = new Vector2(getBody().getPosition()).angleTowardsPoint(new Vector2(point));
 					leftCollided = true;
 					return 0;
 				}
@@ -54,8 +57,22 @@ public class Entity extends KineticObject implements Json.Serializable {
 					System.out.println("rrcc " + fraction);
 					steering = 1;
 					Entity.this.rightFraction = fraction;
-					rightAngleTowards = Util.getAngleTowardsPoint(new Vector2(getBody().getPosition()), new Vector2(point), true);
+					rightAngleTowards = new Vector2(getBody().getPosition()).angleTowardsPoint(new Vector2(point));
 					rightCollided = true;
+					return 0;
+				}
+			}
+			return -1;
+		}
+	};
+	private RayCastCallback frcc = new RayCastCallback() {
+		@Override
+		public float reportRayFixture(Fixture fixture, com.badlogic.gdx.math.Vector2 point, com.badlogic.gdx.math.Vector2 normal, float fraction) {
+			if (fixture.getUserData() instanceof GameObject) {
+				if (((GameObject) fixture.getUserData()).getPathability() > getPathability()) {
+					System.out.println("frcc " + fraction);
+					Entity.this.frontFraction = fraction;
+					frontCollided = true;
 					return 0;
 				}
 			}
@@ -117,10 +134,17 @@ public class Entity extends KineticObject implements Json.Serializable {
 			rightFraction = 0;
 			rightAngleTowards = 0;
 			rightCollided = false;
+			frontFraction = 0;
+			frontCollided = false;
 			Vector2 bodyPosition = new Vector2(getBody().getPosition());
-			getGame().getWorld().rayCast(lrcc, bodyPosition, bodyPosition.copy().applyPolarOffset(getSize() * 2 / getGame().getUtil().getGameScale(), getFacing() + 45));
-			getGame().getWorld().rayCast(rrcc, bodyPosition, bodyPosition.copy().applyPolarOffset(getSize() * 2 / getGame().getUtil().getGameScale(), getFacing() - 45));
+			System.out.println(bodyPosition + " " + bodyPosition.copy().applyPolarOffset(getSize() * 2 / getGame().getUtil().getGameScale(), getFacing().rotate(0.785398)));
+			System.out.println(bodyPosition + " " + bodyPosition.copy().applyPolarOffset(getSize() * 2 / getGame().getUtil().getGameScale(), getFacing().rotate(-0.785398)));
+			System.out.println(bodyPosition + " " + bodyPosition.copy().applyPolarOffset(getSize() * 2 / getGame().getUtil().getGameScale(), getFacing().rotate(0D)));
+			getGame().getWorld().rayCast(lrcc, bodyPosition, bodyPosition.copy().applyPolarOffset(getSize() * 2 / getGame().getUtil().getGameScale(), getFacing().rotate(0.785398)));
+			getGame().getWorld().rayCast(rrcc, bodyPosition, bodyPosition.copy().applyPolarOffset(getSize() * 2 / getGame().getUtil().getGameScale(), getFacing().rotate(-0.785398)));
+			getGame().getWorld().rayCast(frcc, bodyPosition, bodyPosition.copy().applyPolarOffset(getSize() * 2 / getGame().getUtil().getGameScale(), getFacing()));
 		}
+
 		if (path != null && path.size() > 0) {
 			if (path.size() == 1) {
 				if (Util.getDistanceBetweenPoints(getPosition().copy(), path.get(0).copy().multiply(50f)) <= getMoveSpeed()) {
@@ -134,8 +158,7 @@ public class Entity extends KineticObject implements Json.Serializable {
 					}
 				}
 			} else {
-				if (Util.getDistanceBetweenPoints(getPosition().copy(), path.get(0).copy().multiply(50f)) <= (getSize())) {
-					// setPosition(path.get(0).copy().multiply(50f));
+				if (Util.getDistanceBetweenPoints(getPosition().copy(), path.get(0).copy().multiply(50f)) <= getSize() / 2f) {
 					path.remove(0);
 					if (path.size() == 0) {
 						path = null;
@@ -145,21 +168,50 @@ public class Entity extends KineticObject implements Json.Serializable {
 					}
 				}
 			}
+
 			if (path != null && path.size() > 0) {
-				float angle = Util.getAngleTowardsPoint(getPosition().copy(), path.get(0).copy().multiply(50f), true);
-				if (leftCollided && leftFraction <= rightFraction) {
-					// Left feeler's collision was closer
-					if (leftAngleTowards - getFacing() < 90) {
-						angle = Util.getAngleTowardsPoint(getPosition().copy(), path.get(0).copy().multiply(50f), true) + (((1 / leftFraction)) * -15);
-					}
-				} else if (rightCollided) {
-					// Right feeler's collision was closer
-					if (rightAngleTowards - getFacing() > 90) {
-						angle = Util.getAngleTowardsPoint(getPosition().copy(), path.get(0).copy().multiply(50f), true) + (((1 / rightFraction)) * 15);
+				double oldFacing = getFacing().angleRad();
+				double angleTowards = getPosition().angleTowardsPoint(path.get(0).copy().multiply(50f));
+				double newFacing = oldFacing;
+				Vector2 vectorTowards = new Vector2(1, 0);
+				vectorTowards.setAngleRad((float) angleTowards);
+				System.out.println("leftCollided: " + leftCollided + " rightCollided: " + rightCollided + " leftFraction: " + leftFraction + " rightFraction: " + rightFraction);
+				System.out.println("old facing: " + Math.toDegrees(oldFacing));
+				System.out.println("Angle between " + Math.toDegrees(vectorTowards.angleBetween(getFacing())));
+				if (Math.abs(vectorTowards.angleBetween(getFacing())) <= 0.3) {
+					// Snap to angle
+					System.out.println("Angle Towards: " + Math.toDegrees(angleTowards) + " " + getPosition() + " " + path.get(0).copy().multiply(50f));
+					newFacing = angleTowards;
+				} else {
+					if (getFacing().getAngularRelationship(vectorTowards) == -1) {
+						// angle is clockwise
+						System.out.println("clockwise: " + Math.toDegrees((oldFacing - 0.3)));
+						newFacing = oldFacing - 0.3;
+					} else {
+						// angle is counter-clockwise
+						System.out.println("counter clockwise: " + Math.toDegrees((oldFacing + 0.3)));
+						newFacing = oldFacing + 0.3;
 					}
 				}
-				setFacing(angle);
-				Vector2 force = Util.getVelocity(angle, getMoveSpeed());
+
+				if (frontCollided) {
+					if (leftCollided) {
+						System.out.println("left collided: " + Math.toRadians(1 / leftFraction));
+						newFacing -= Math.toRadians(2 / leftFraction);
+					}
+
+					if (rightCollided) {
+						System.out.println("right collided: " + Math.toRadians(1 / rightFraction));
+						System.out.println("a Facing: " + newFacing);
+						newFacing += Math.toRadians(2 / rightFraction);
+						System.out.println("b Facing: " + newFacing);
+					}
+				}
+				System.out.println("New Facing: " + newFacing);
+				setFacing(newFacing);
+				System.out.println("Facing As Rad: " + getFacing());
+				Vector2 force = Util.getVelocity(getFacing().angleRad(), getMoveSpeed());
+				System.out.println("Force: " + force);
 				if (getBody() != null) {
 					getBody().setLinearVelocity(force);
 				}
@@ -174,11 +226,11 @@ public class Entity extends KineticObject implements Json.Serializable {
 
 			if (this.getSprite() == null) {
 				batch.setColor(1, 1, 1, .3f);
-				batch.draw(sprite, (getX()), (getY()), (sprite.getWidth() / 2), (sprite.getHeight() / 2), sprite.getWidth(), sprite.getHeight(), 1, 1, getFacing());
+				batch.draw(sprite, (getX()), (getY()), (sprite.getWidth() / 2), (sprite.getHeight() / 2), sprite.getWidth(), sprite.getHeight(), 1, 1, getFacing().angle());
 			} else {
 				batch.setColor(0, 1, 0, .3f);
 				batch.draw(sprite, (getX()) - (sprite.getWidth() / 2), (getY()) - (sprite.getHeight() / 2), (sprite.getWidth() / 2), (sprite.getHeight() / 2), sprite.getWidth(), sprite.getHeight(),
-						1, 1, getFacing());
+						1, 1, getFacing().angle());
 			}
 
 			batch.setColor(1, 1, 1, 1);
@@ -186,12 +238,12 @@ public class Entity extends KineticObject implements Json.Serializable {
 		}
 		if (getSprite() != null) {
 			batch.draw(getSprite(), (getX()) - (getSprite().getWidth() / 2), (getY()) - (getSprite().getHeight() / 2), (getSprite().getWidth() / 2), (getSprite().getHeight() / 2), getSprite()
-					.getWidth(), getSprite().getHeight(), 1, 1, getFacing());
+					.getWidth(), getSprite().getHeight(), 1, 1, getFacing().angle());
 		}
 		if (path != null && path.size() > 0) {
 			for (Vector2 v : path) {
 				batch.setColor(1, 0, 0, 1);
-				batch.draw(getGame().getLevel().atlas.findRegion("white_pixel"), v.x * 50, v.y * 50, 1, 1, 4, 4, 1, 1, getFacing());
+				batch.draw(getGame().getLevel().atlas.findRegion("white_pixel"), v.x * 50, v.y * 50, 1, 1, 4, 4, 1, 1, getFacing().angle());
 				batch.setColor(1, 1, 1, 1);
 			}
 		}

@@ -2,33 +2,38 @@ package util;
 
 import java.util.ArrayList;
 
-import data.Node;
+import engine.Game;
 
 public class PathSmoother {
-	private static float OFFSET = 12.5f / 50;
+	private float offset;
 	private Vector2 apex;
 	private ArrayList<Vector2> leftVertices = new ArrayList<>();
 	private ArrayList<Vector2> rightVertices = new ArrayList<>();
 	private int leftIndex;
 	private int rightIndex;
 	private PathFinder path_finder;
-
+	private Game game;
 	ArrayList<Vector2> smooth_path = new ArrayList<>();
 
-	public PathSmoother(PathFinder path_finder) {
+	public PathSmoother(PathFinder path_finder, Game game) {
+		this.game = game;
 		this.path_finder = path_finder;
+		offset = path_finder.getEntity().getSize() / 2f / game.getUtil().getGameScale();
 	}
 
 	public ArrayList<Vector2> funnel(int pathability, ArrayList<Vector2> path) {
 		ArrayList<Vector2[]> portals = buildPortals(path);
-		System.out.print("Portals:");
+
 		leftIndex = 0;
 		rightIndex = 1;
+
+		String text = "Portals: ";
 		for (Vector2[] portal : portals) {
-			System.out.print(" [" + portal[0] + ", " + portal[1] + "]");
+			text += " [" + portal[0] + ", " + portal[1] + "]";
 			leftVertices.add(portal[0]);
 			rightVertices.add(portal[1]);
 		}
+		Logger.log(text, "smooth", false);
 		apex = path.get(0);
 		smooth_path.add(apex);
 
@@ -36,7 +41,8 @@ public class PathSmoother {
 			updateFunnel(false, i - 1, i);
 			updateFunnel(true, i, i);
 		}
-		simplify(pathability, smooth_path);
+		// simplify(pathability, smooth_path);
+		smooth_path.add(path.get(path.size() - 1));
 		return smooth_path;
 	}
 
@@ -117,35 +123,55 @@ public class PathSmoother {
 	}
 
 	private ArrayList<Vector2[]> buildPortals(ArrayList<Vector2> path) {
-		System.out.println("Build Portals");
+		Logger.log("Build Portals", "smooth", false);
 		ArrayList<Vector2[]> portals = new ArrayList<>();
 		Vector2 vStart = path.get(0).copy();
-		System.out.println("Start Node: " + vStart + "Snapped to: " + vStart.snapToWorldPoint(1));
-		Vector2[] startPortal = new Vector2[2];
+		Logger.log("Start Node: " + vStart + "Snapped to: " + vStart.snapToWorldPoint(1), "smooth", false);
+		Vector2[] portal = new Vector2[2];
 		switch (vStart.headingTowards(path.get(1))) {
 		case Vector2.NORTH:
-			System.out.println("North");
-			startPortal[0] = new Vector2(vStart.x, vStart.y);
-			startPortal[1] = new Vector2(vStart.x + 1, vStart.y);
+			Logger.log("North", "smooth", false);
+			portal[0] = new Vector2(vStart.x, vStart.y);
+			portal[1] = new Vector2(vStart.x + 1, vStart.y);
+			portals.add(portal);
+			portal = new Vector2[2];
+			portal[0] = new Vector2(vStart.x, vStart.y + 1);
+			portal[1] = new Vector2(vStart.x + 1, vStart.y + 1);
+			portals.add(portal);
 			break;
 		case Vector2.EAST:
-			System.out.println("East");
-			startPortal[0] = new Vector2(vStart.x, vStart.y + 1);
-			startPortal[1] = new Vector2(vStart.x, vStart.y);
+			Logger.log("East", "smooth", false);
+			portal[0] = new Vector2(vStart.x, vStart.y + 1);
+			portal[1] = new Vector2(vStart.x, vStart.y);
+			portals.add(portal);
+			portal = new Vector2[2];
+			portal[0] = new Vector2(vStart.x + 1, vStart.y + 1);
+			portal[1] = new Vector2(vStart.x + 1, vStart.y);
+			portals.add(portal);
 			break;
 		case Vector2.SOUTH:
-			System.out.println("South");
-			startPortal[0] = new Vector2(vStart.x + 1, vStart.y + 1);
-			startPortal[1] = new Vector2(vStart.x, vStart.y + 1);
+			Logger.log("South", "smooth", false);
+			portal[0] = new Vector2(vStart.x + 1, vStart.y + 1);
+			portal[1] = new Vector2(vStart.x, vStart.y + 1);
+			portals.add(portal);
+			portal = new Vector2[2];
+			portal[0] = new Vector2(vStart.x + 1, vStart.y);
+			portal[1] = new Vector2(vStart.x, vStart.y);
+			portals.add(portal);
 			break;
 		case Vector2.WEST:
-			System.out.println("West");
-			startPortal[0] = new Vector2(vStart.x + 1, vStart.y);
-			startPortal[1] = new Vector2(vStart.x + 1, vStart.y + 1);
+			Logger.log("West", "smooth", false);
+			portal[0] = new Vector2(vStart.x + 1, vStart.y);
+			portal[1] = new Vector2(vStart.x + 1, vStart.y + 1);
+			portals.add(portal);
+			portal = new Vector2[2];
+			portal[0] = new Vector2(vStart.x, vStart.y);
+			portal[1] = new Vector2(vStart.x, vStart.y + 1);
+			portals.add(portal);
 			break;
 		}
-		portals.add(startPortal);
-		for (int i = 0; i < path.size() - 1; i++) {
+		portal = null; // Cleared
+		for (int i = 1; i < path.size() - 1; i++) {
 			portals.add(path.get(i).getSharedEdge(path.get(i + 1)));
 		}
 		Vector2[] endPortal = new Vector2[2];
@@ -153,23 +179,55 @@ public class PathSmoother {
 		Vector2 snappedEndVertex = endVertex.copy().snapToWorldPoint(1);
 		switch (endVertex.headingTowards(path.get(path.size() - 2))) {
 		case Vector2.NORTH:
-			endPortal[0] = new Vector2(snappedEndVertex.x + 1, snappedEndVertex.y);
-			endPortal[1] = new Vector2(snappedEndVertex.x, snappedEndVertex.y);
+			Logger.log("North", "smooth", false);
+			endPortal[0] = new Vector2(snappedEndVertex.x + 1, snappedEndVertex.y + 1);
+			endPortal[1] = new Vector2(snappedEndVertex.x, snappedEndVertex.y + 1);
+			portals.add(endPortal);
+			// endPortal = new Vector2[2];
+			// endPortal[0] = new Vector2(snappedEndVertex.x + 1,
+			// snappedEndVertex.y);
+			// endPortal[1] = new Vector2(snappedEndVertex.x,
+			// snappedEndVertex.y);
+			// portals.add(endPortal);
 			break;
 		case Vector2.EAST:
+			Logger.log("East", "smooth", false);
 			endPortal[0] = new Vector2(snappedEndVertex.x, snappedEndVertex.y);
 			endPortal[1] = new Vector2(snappedEndVertex.x, snappedEndVertex.y + 1);
+			portals.add(endPortal);
+			// endPortal = new Vector2[2];
+			// endPortal[0] = new Vector2(snappedEndVertex.x + 1,
+			// snappedEndVertex.y);
+			// endPortal[1] = new Vector2(snappedEndVertex.x + 1,
+			// snappedEndVertex.y + 1);
+			// portals.add(endPortal);
 			break;
 		case Vector2.SOUTH:
-			endPortal[0] = new Vector2(snappedEndVertex.x, snappedEndVertex.y + 1);
-			endPortal[1] = new Vector2(snappedEndVertex.x + 1, snappedEndVertex.y + 1);
+			Logger.log("South", "smooth", false);
+			endPortal[0] = new Vector2(snappedEndVertex.x, snappedEndVertex.y);
+			endPortal[1] = new Vector2(snappedEndVertex.x + 1, snappedEndVertex.y);
+			portals.add(endPortal);
+			// endPortal = new Vector2[2];
+			// endPortal[0] = new Vector2(snappedEndVertex.x, snappedEndVertex.y
+			// + 1);
+			// endPortal[1] = new Vector2(snappedEndVertex.x + 1,
+			// snappedEndVertex.y + 1);
+			// portals.add(endPortal);
 			break;
 		case Vector2.WEST:
+			Logger.log("West", "smooth", false);
 			endPortal[0] = new Vector2(snappedEndVertex.x + 1, snappedEndVertex.y + 1);
 			endPortal[1] = new Vector2(snappedEndVertex.x + 1, snappedEndVertex.y);
+			portals.add(endPortal);
+			// endPortal = new Vector2[2];
+			// endPortal[0] = new Vector2(snappedEndVertex.x, snappedEndVertex.y
+			// + 1);
+			// endPortal[1] = new Vector2(snappedEndVertex.x,
+			// snappedEndVertex.y);
+			// portals.add(endPortal);
 			break;
 		}
-		portals.add(endPortal);
+		endPortal = null;
 		return portals;
 	}
 
@@ -184,16 +242,18 @@ public class PathSmoother {
 		a = a.copy();
 		for (int x = i; x + 1 < channel.size(); x++) {
 			c = channel.get(x + 1);
+			System.out.println("c: " + c);
 			if (c.x != b.x && c.y != b.y) {
 				break;
 			}
 		}
+		System.out.println("c2: " + c);
 		c = c.copy();
 
 		a = b.copy().sub(a).normalize();
 		c = b.sub(c).normalize();
 
-		return a.add(c).normalize().multiply(OFFSET);
+		return a.add(c).normalize().multiply(offset);
 	}
 
 	public static int getLinePointRelationship(Vector2 segmentStart, Vector2 segmentEnd, Vector2 v) {

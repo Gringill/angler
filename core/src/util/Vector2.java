@@ -6,6 +6,10 @@ public class Vector2 extends com.badlogic.gdx.math.Vector2 {
 	public static final short SOUTH = 2;
 	public static final short WEST = 3;
 
+	public Vector2() {
+		x = 1;
+	}
+
 	public Vector2(float x, float y) {
 		this.x = x;
 		this.y = y;
@@ -66,9 +70,9 @@ public class Vector2 extends com.badlogic.gdx.math.Vector2 {
 		return (v.x == x && v.y == y);
 	}
 
-	public Vector2 snapToWorldPoint(int snap) {
-		x = (((int) x / snap) * snap);
-		y = (((int) y / snap) * snap);
+	public Vector2 snapToWorldPoint(float snap) {
+		x = (((int) (x / snap)) * snap);
+		y = (((int) (y / snap)) * snap);
 		return this;
 	}
 
@@ -94,28 +98,102 @@ public class Vector2 extends com.badlogic.gdx.math.Vector2 {
 		return edge;
 	}
 
-	public Vector2 applyPolarOffset(double offset, double angle) {
-		angle = Math.toRadians(angle);
-		x += (Math.cos(angle) * offset);
-		y += (Math.sin(angle) * offset);
+	public Vector2 applyPolarOffset(double offset, Vector2 angle) {
+		x += (Math.cos(angle.angleRad()) * offset);
+		y += (Math.sin(angle.angleRad()) * offset);
 		return this;
+	}
+
+	/**
+	 * @param angle
+	 *            in degrees
+	 */
+	public Vector2 rotate(double angle) {
+		double cos = Math.cos(angle);
+		double sin = Math.sin(angle);
+
+		double newX = this.x * cos - this.y * sin;
+		double newY = this.x * sin + this.y * cos;
+
+		this.x = (float) newX;
+		this.y = (float) newY;
+
+		return this;
+	}
+
+	public double angleTowardsPoint(Vector2 v2) {
+		double angle = Math.atan2(v2.y - y, v2.x - x);
+		
+		return angle;
+	}
+
+	public static void main(String[] args) {
+		Vector2 v = new Vector2(1, 1);
+		Vector2 v2 = new Vector2(1, 0);
+		System.out.println(v.angle());
+		System.out.println(v2.angle());
+		System.out.println(Math.toDegrees(v.angleTowardsPoint(v2)));
+	}
+
+	/**
+	 * 
+	 * @param v1
+	 * @param v2
+	 * @param toDegrees
+	 * @return the angle defined by the points v2, v1, (v1.y, v2.x)
+	 */
+	public double angleTowardsPoint(float x, float y) {
+		return Math.atan2(y -= this.y, x -= this.x);
+	}
+
+	public double angleBetween(Vector2 v) {
+		return Math.acos(copy().normalize().dot(v.copy().normalize()));
 	}
 
 	public int headingTowards(Vector2 v2) {
 		Vector2 v = copy().snapToWorldPoint(1);
 		v2 = v2.copy().snapToWorldPoint(1);
-		if (v2.x > v.x) {
-			return EAST;
-		} else if (v2.x < v.x) {
-			return WEST;
+		int dx = (int) (v2.x - v.x);
+		int dy = (int) (v2.y - v.y);
+		if (Math.abs(dx) >= Math.abs(dy)) {
+			if (dx >= 0) {
+				return EAST;
+			} else {
+				return WEST;
+			}
 		} else {
-			if (v2.y > v.y) {
+			if (dy >= 0) {
 				return NORTH;
-			} else if (v2.y < v.y) {
+			} else {
 				return SOUTH;
 			}
 		}
-		return -1;
+	}
+
+	/**
+	 * 
+	 * @param v
+	 * @return 1 if v is counterclockwise of this <br>
+	 *         -1 if v is clockwise of this
+	 */
+	public int getAngularRelationship(Vector2 v) {
+		if (y * v.x > x * v.y) {
+			return 1; // Counter-Clockwise
+		} else {
+			return -1; // Clockwise
+		}
+	}
+
+	/**
+	 * @return 1 if v is counterclockwise of this <br>
+	 *         -1 if v is clockwise of this
+	 */
+	public int getAngularRelationship(float x2, float y2) {
+		if (y * x2 > x * y2) {
+			return 1; // Counter-Clockwise
+		} else {
+			return -1; // Clockwise
+		}
 	}
 
 	@Override

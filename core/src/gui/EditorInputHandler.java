@@ -67,9 +67,9 @@ public class EditorInputHandler implements InputProcessor {
 				pointB = worldCoords.copy();
 				Logger.log(
 						"LOS from "
-								+ pointA
+								+ pointA.copy().multiply(1f / 50 * editor.getGame().getLevel().getTileMap().getNodeMap().getDensity())
 								+ " to "
-								+ pointB
+								+ pointB.copy().multiply(1f / 50 * editor.getGame().getLevel().getTileMap().getNodeMap().getDensity())
 								+ ": "
 								+ editor.getGame()
 										.getLevel()
@@ -210,7 +210,7 @@ public class EditorInputHandler implements InputProcessor {
 			if (editor.getGame().getSelectedEntities().size() >= 1 && Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
 				// Force selected entities to face dragged mouse position
 				for (GameObject e : editor.getGame().getSelectedEntities()) {
-					e.setFacing(Util.getAngleTowardsPoint(e.getPosition(), editor.getGame().getUtil().getMouseWorldCoords(new Vector2(screenX, screenY), true), true));
+					e.setFacing(e.getPosition().angleTowardsPoint(editor.getGame().getUtil().getMouseWorldCoords(new Vector2(screenX, screenY), true)));
 				}
 			} else {
 				if (editor.getDraggedEntity() != null) {

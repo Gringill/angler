@@ -2,6 +2,7 @@ package engine;
 
 import java.util.ArrayList;
 
+import util.Logger;
 import util.PathFinder;
 import util.Vector2;
 import data.Node;
@@ -22,6 +23,7 @@ public class NodeMap {
 	}
 
 	public boolean lineOfSight(int pathability, Vector2 a, Vector2 b) {
+		Logger.log("Begin LOS: ", "los", false);
 		int x1 = (int) (a.x);
 		int y1 = (int) (a.y);
 		int x2 = (int) (b.x);
@@ -89,6 +91,7 @@ public class NodeMap {
 				errorprev = error;
 			}
 		} else { // the same as above
+			Logger.log("Else", "los", false);
 			errorprev = error = dx;
 			for (i = 0; i < dx; i++) {
 				x += xstep;
@@ -97,27 +100,33 @@ public class NodeMap {
 					y += ystep;
 					error -= ddx;
 					if (error + errorprev < ddx)
-						if (!isPathableAtNodePoint(pathability, x, y - ystep)) {
+						Logger.log("Check 1", "los", false);
+					if (!isPathableAtNodePoint(pathability, x, y - ystep)) {
+						Logger.log("a", "los", false);
+						return false;
+					} else if (error + errorprev > ddx) {
+						if (!isPathableAtNodePoint(pathability, x - xstep, y)) {
+							Logger.log("b", "los", false);
 							return false;
-						} else if (error + errorprev > ddx) {
-							if (!isPathableAtNodePoint(pathability, x - xstep, y)) {
-								return false;
-							}
-						} else {
-							if (!isPathableAtNodePoint(pathability, y, x - xstep) || !isPathableAtNodePoint(pathability, y - ystep, x)) {
-								return false;
-							}
 						}
+					} else {
+						if (!isPathableAtNodePoint(pathability, y, x - xstep) || !isPathableAtNodePoint(pathability, y - ystep, x)) {
+							Logger.log("c", "los", false);
+							return false;
+						}
+					}
 				}
+				Logger.log("Check 2", "los", false);
 				if (!isPathableAtNodePoint(pathability, x, y)) {
+					Logger.log("a", "los", false);
 					return false;
 				}
 				errorprev = error;
 			}
 		}
-		assert ((y == y2) && (x == x2)); // the last point (y2,x2) has to be the
-											// same with the last point of the
-											// algorithm
+		// the last point (y2,x2) has to be the same with the last point of the
+		// algorithm
+		assert ((y == y2) && (x == x2));
 		return true;
 	}
 

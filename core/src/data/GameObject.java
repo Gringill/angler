@@ -18,7 +18,7 @@ public abstract class GameObject implements Json.Serializable {
 	private Game game;
 	private String name;
 	private Vector2 position = new Vector2(0, 0);
-	private float facing;
+	private Vector2 facing = new Vector2();
 	private Sprite sprite;
 	private String texture = "bin/unpacked/cam.png";
 	private float health = 100;
@@ -173,12 +173,12 @@ public abstract class GameObject implements Json.Serializable {
 		this.game = game;
 	}
 
-	public float getFacing() {
-		return facing;
+	public Vector2 getFacing() {
+		return facing.copy();
 	}
 
-	public void setFacing(float newFacing) {
-		facing = newFacing;
+	public void setFacing(double newFacing) {
+		facing.setAngleRad((float) newFacing);
 	}
 
 	public void setSelected(boolean b) {

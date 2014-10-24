@@ -127,23 +127,6 @@ public class Util {
 		return new Rectangle(a2.x, a2.y, b2.x - a2.x, b2.y - a2.y);
 	}
 
-	/**
-	 * Vector parameters remain unchanged throughout this method.
-	 * 
-	 * @param v1
-	 * @param v2
-	 * @param toDegrees
-	 * @return the angle defined by the points v2, v1, (v1.y, v2.x)
-	 */
-	public static float getAngleTowardsPoint(Vector2 v1, Vector2 v2, boolean toDegrees) {
-		v2 = v2.copy();
-		v1 = v2.sub(v1);
-		double angle = Math.atan2(v1.y, v1.x);
-		if (toDegrees)
-			return (float) Math.toDegrees(angle);
-		return (float) angle;
-	}
-
 	public static Vector2 snapToWorldPoint(Vector2 worldMouse, int snap) {
 		worldMouse.x = (((int) worldMouse.x / snap) * snap);
 		worldMouse.y = (((int) worldMouse.y / snap) * snap);
@@ -176,7 +159,7 @@ public class Util {
 	 */
 	public static final Vector2 getVelocity(Vector2 currentPosition, Vector2 destinationPosition, float speed) {
 		Vector2 nextPosition = new Vector2(0, 0);
-		Vector2 velocityPoint = getVelocity(getAngleTowardsPoint(currentPosition, destinationPosition, true), speed);
+		Vector2 velocityPoint = getVelocity(currentPosition.angleTowardsPoint(destinationPosition), speed);
 		nextPosition.x = currentPosition.x + velocityPoint.x;
 		nextPosition.y = currentPosition.y + velocityPoint.y;
 		return nextPosition;
@@ -189,10 +172,10 @@ public class Util {
 	 * @param speed
 	 * @return
 	 */
-	public static final Vector2 getVelocity(float angle, float speed) {
-		float x = (float) (Math.cos(Math.toRadians(angle)) * speed);
-		float y = (float) (Math.sin(Math.toRadians(angle)) * speed);
-		return (new Vector2(x, y));
+	public static final Vector2 getVelocity(double angle, double speed) {
+		double x = (Math.cos(angle) * speed);
+		double y = (Math.sin(angle) * speed);
+		return (new Vector2((float) x, (float) y));
 	}
 
 	/**
@@ -214,16 +197,6 @@ public class Util {
 		} else { // Point is on line
 			return 0;
 		}
-	}
-
-	/**
-	 * 
-	 * @param a
-	 * @param b
-	 * @return
-	 */
-	public static double getPerpDotProd(Vector2 a, Vector2 b) {
-		return Math.atan2(a.x * b.y - a.y * b.x, a.x * b.x + a.y * b.y);
 	}
 
 	public static BufferedImage readBufferedImage(String file) {

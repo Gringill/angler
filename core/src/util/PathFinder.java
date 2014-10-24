@@ -23,7 +23,7 @@ public class PathFinder {
 	private ArrayList<Node> changed_path = new ArrayList<>();
 	private Node[][] local;
 	private Node[][] parent;
-	private float[][] g;
+	private double[][] g;
 	private float[][] h;
 	private float[][] lowerBound;
 	private float[][] upperBound;
@@ -123,7 +123,7 @@ public class PathFinder {
 		PathFinder.this.vGoal = vGoal;
 		local = new Node[nodemap.getWidth()][nodemap.getHeight()];
 		parent = new Node[nodemap.getWidth()][nodemap.getHeight()];
-		g = new float[nodemap.getWidth()][nodemap.getHeight()];
+		g = new double[nodemap.getWidth()][nodemap.getHeight()];
 		h = new float[nodemap.getWidth()][nodemap.getHeight()];
 		lowerBound = new float[nodemap.getWidth()][nodemap.getHeight()];
 		upperBound = new float[nodemap.getWidth()][nodemap.getHeight()];
@@ -165,35 +165,40 @@ public class PathFinder {
 			current = getLowestF(pool_open, true);
 			if (current.equals(goal)) {
 				buildPath(goal);
-				// path.set(0, vStart.copy().multiply((1f /
-				// getNodemap().getDensity()) * 2));
-				path.set(0, vStart.copy().multiply((1f / getNodemap().getDensity())));
-				// path.set(path.size() - 1, vGoal.copy().multiply((1f /
-				// getNodemap().getDensity()) * 2));
-				path.set(path.size() - 1, vGoal.copy().multiply((1f / getNodemap().getDensity())));
+				path.set(0, vStart.copy().multiply((1f / getNodemap().getDensity() * 2)));
+				path.set(path.size() - 1, vGoal.copy().multiply((1f / getNodemap().getDensity() * 2)));
 				Logger.log("Found path successfully . . . Now lets smooth", "PathFinder", false);
-				// path = new PathSmoother(this).funnel(entity.getPathability(),
-				// path);
+				System.out.print("Found Path:");
+				for (Vector2 v : path) {
+					System.out.print(" " + v);
+				}
+				System.out.println();
+				// path = new PathSmoother(this,
+				// game).funnel(getEntity().getPathability(), path);
+				System.out.print("Found Smoothed Path:");
+				for (Vector2 v : path) {
+					System.out.print(" " + v.multiply(1f / 2f));
+				}
+				System.out.println();
 				return path;
 			} else {
 				close(current);
-				Logger.log(current + " has " + current.getNeighbors().size() + " neighbors", "PathFinder", false);
+				Logger.log(current + " has " + current.getNeighbors().size() + " neighbors", "neighbors", false);
 				for (Node n : current.getNeighbors()) {
 					if (!nodemap.isNodePathable(entity.getPathability(), n)) {
-						Logger.log(n + " is not pathable", "PathFinder", false);
 						close(n);
 					}
 					if (!inClosed(n)) {
 						if (!inOpen(n)) {
 							initializeNode(n);
 							open(n);
-							Logger.log(n + " is not closed and was not open yet but is now", "PathFinder", false);
+							Logger.log(n + " is not closed and was not open yet but is now", "neighbors", false);
 						} else {
-							Logger.log(n + " is not closed but is already open", "PathFinder", false);
+							Logger.log(n + " is not closed but is already open", "neighbors", false);
 						}
 						computePath(current, n);
 					} else {
-						Logger.log(n + " is already closed", "PathFinder", false);
+						Logger.log(n + " is already closed", "neighbors", false);
 					}
 				}
 			}
@@ -205,33 +210,39 @@ public class PathFinder {
 		// boolean elbowTest = elbowTest(n.getPosition(),
 		// getParent(current).getPosition());
 		boolean losTest = nodemap.lineOfSight(entity.getPathability(), getParent(current).getPosition(), n.getPosition());
-		float phi = phi(current.getPosition(), getParent(current).getPosition(), n.getPosition());
-		float distance = Util.getDistanceBetweenPoints(getParent(current).getPosition(), n.getPosition());
-
+		double phi = phi(current.getPosition(), getParent(current).getPosition(), n.getPosition());
+		double distance = Util.getDistanceBetweenPoints(getParent(current).getPosition(), n.getPosition());
+		Logger.log("LOS from " + getParent(current).getPosition() + " to " + n.getPosition() + ": " + losTest, "computePath", false);
+		Logger.log("Phi: " + phi, "computePath", false);
+		Logger.log("Distance: " + distance, "computePath", false);
 		if (true && losTest && phi >= getLowerBound(current) && phi <= getUpperBound(current)) {
+			Logger.log("Passed losTest && phi", "computePath", false);
 			if (getG(getParent(current)) + distance < getG(n)) {
+				Logger.log("Passed distnace", "computePath", false);
 				if ((n.getPosition().x == 2 && n.getPosition().y == 0) || (n.getPosition().x == 3 && n.getPosition().y == 1)) {
 					Logger.log("set", "PathFinder", false);
 				}
 				setG(n, getG(getParent(current)) + distance);
+				Logger.log("Set " + n + "'s parent to " + getParent(current), "computePath", false);
 				setParent(n, getParent(current));
 				setHeuristic(n, goal);
 				setLocal(n, current);
 				float l = Float.POSITIVE_INFINITY;
 				float u = Float.NEGATIVE_INFINITY;
 				for (Node n2 : n.getNeighbors()) {
-					l = Math.min(l, phi(n.getPosition(), getParent(current).getPosition(), n2.getPosition()));
-					u = Math.max(u, phi(n.getPosition(), getParent(current).getPosition(), n2.getPosition()));
+					l = Math.min(l, (float) phi(n.getPosition(), getParent(current).getPosition(), n2.getPosition()));
+					u = Math.max(u, (float) phi(n.getPosition(), getParent(current).getPosition(), n2.getPosition()));
 				}
 				phi = phi(current.getPosition(), getParent(current).getPosition(), n.getPosition());
-				setLowerBound(n, Math.max(l, getLowerBound(current) - phi));
-				setUpperBound(n, Math.min(u, getUpperBound(current) - phi));
+				setLowerBound(n, Math.max(l, (float) (getLowerBound(current) - phi)));
+				setUpperBound(n, Math.min(u, (float) (getUpperBound(current) - phi)));
 			}
 		} else if (getG(current) + (distance = Util.getDistanceBetweenPoints(current.getPosition(), n.getPosition())) <= getG(n)) {
 			if ((n.getPosition().x == 2 && n.getPosition().y == 0) || (n.getPosition().x == 3 && n.getPosition().y == 1)) {
 				Logger.log("distance between " + current.getPosition() + " and " + n.getPosition() + ": " + distance, "PathFinder", false);
 				Logger.log("g(" + n + ") = g(" + current + ")" + getG(current) + " " + distance + " = " + (getG(current) + distance), "PathFinder", false);
 			}
+			Logger.log("Set " + n + "'s parent to " + current, "computePath", false);
 			setParent(n, current);
 			setG(n, getG(current) + distance);
 			setHeuristic(n, goal);
@@ -253,9 +264,9 @@ public class PathFinder {
 	 * <br>
 	 *         Negative - ba is counterclockwise from bc
 	 */
-	private float phi(Vector2 a, Vector2 b, Vector2 c) {
-		float bc = Util.getAngleTowardsPoint(b, c, false);
-		float ba = Util.getAngleTowardsPoint(b, a, false);
+	private double phi(Vector2 a, Vector2 b, Vector2 c) {
+		double bc = b.angleTowardsPoint(c);
+		double ba = b.angleTowardsPoint(a);
 		return (ba - bc);
 	}
 
@@ -269,8 +280,8 @@ public class PathFinder {
 	 *         the vertical line through b.
 	 */
 	private boolean elbowTest(Vector2 a, Vector2 b) {
-		float aVert = 90;
-		float aRay = Util.getAngleTowardsPoint(a, b, true);
+		double aVert = 90;
+		double aRay = a.angleTowardsPoint(b);
 		aVert -= aRay;
 		if (aVert > 90) {
 			aVert = 180 - aVert;
@@ -279,11 +290,11 @@ public class PathFinder {
 	}
 
 	public Node getLowestF(ArrayList<Node> nodes, boolean doRemove) {
-		Logger.log("getLowestF()", "PathFinder", false);
-		float lowest = Float.POSITIVE_INFINITY;
+		Logger.log("getLowestF()", "getLowestF", false);
+		double lowest = Float.POSITIVE_INFINITY;
 		Node bestNode = null;
 		for (Node n : nodes) {
-			Logger.log("Check node " + n + " F: " + getF(n, h_weight) + " G: " + getG(n) + " H: " + getH(n), "PathFinder", false);
+			Logger.log("Check node " + n + " F: " + getF(n, h_weight) + " G: " + getG(n) + " H: " + getH(n), "Check node", false);
 			if (getF(n, h_weight) <= lowest) {
 				lowest = getF(n, h_weight);
 				bestNode = n;
@@ -309,9 +320,7 @@ public class PathFinder {
 		if (!getParent(currentNode).equals(currentNode)) {
 			buildPath(getParent(currentNode));
 		}
-		path.add(currentNode.getPosition().copy().multiply((1 / nodemap.getDensity())));
-		// path.add(currentNode.getPosition().copy().multiply((1 /
-		// nodemap.getDensity()) * 2));
+		path.add(currentNode.getPosition().copy().multiply((1 / nodemap.getDensity() * 2)));
 	}
 
 	private boolean inOpen(Node n) {
@@ -369,7 +378,7 @@ public class PathFinder {
 	/**
 	 * @return g + h
 	 */
-	public float getF(Node n, float weight) {
+	public double getF(Node n, float weight) {
 		return g[(int) n.getPosition().x][(int) n.getPosition().y] + (h[(int) n.getPosition().x][(int) n.getPosition().y] * weight);
 	}
 
@@ -428,11 +437,11 @@ public class PathFinder {
 		this.delta_nodes = delta_nodes;
 	}
 
-	public float getG(Node n) {
+	public double getG(Node n) {
 		return g[(int) n.getPosition().x][(int) n.getPosition().y];
 	}
 
-	public void setG(Node n, float g) {
+	public void setG(Node n, double g) {
 		this.g[(int) n.getPosition().x][(int) n.getPosition().y] = g;
 	}
 
