@@ -65,3 +65,5 @@ build/
 core/assets/sheep_server.jar
 
 package_server.xml
+
+core/sheep_tag-core.eml
