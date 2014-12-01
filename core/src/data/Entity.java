@@ -2,6 +2,7 @@ package data;
 
 import java.util.ArrayList;
 
+import util.Logger;
 import util.PathFinder;
 import util.Util;
 import util.Vector2;
@@ -241,11 +242,15 @@ public class Entity extends KineticObject implements Json.Serializable {
 					.getWidth(), getSprite().getHeight(), 1, 1, getFacing().angle());
 		}
 		if (path != null && path.size() > 0) {
+			StringBuilder sb = new StringBuilder();
+			sb.append("Path: ");
 			for (Vector2 v : path) {
+				sb.append("(" + v.x + ", " + v.y + "), ");
 				batch.setColor(1, 0, 0, 1);
-				batch.draw(getGame().getLevel().atlas.findRegion("white_pixel"), v.x * 50, v.y * 50, 1, 1, 4, 4, 1, 1, getFacing().angle());
+				batch.draw(getGame().getLevel().atlas.findRegion("white_pixel"), v.x, v.y, 1, 1, 4, 4, 1, 1, getFacing().angle());
 				batch.setColor(1, 1, 1, 1);
 			}
+			Logger.log(sb.toString(), "e-path", false);
 		}
 	}
 

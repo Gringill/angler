@@ -60,7 +60,7 @@ public class PathFinder {
 				if (!nodemap.lineOfSight(entity.getPathability(), vStart, vGoal)) {
 					findPath();
 				} else {
-					path.add(vGoal.multiply(1 / nodemap.getDensity()));
+					path.add(vGoal.multiply(50 / nodemap.getDensity()));
 				}
 				time_start = System.currentTimeMillis();
 
@@ -158,28 +158,18 @@ public class PathFinder {
 	 */
 	private ArrayList<Vector2> findPath() {
 		Node current;
-		Logger.log("A* " + vStart + " to " + vGoal, "", false);
+		Logger.log("A* Start: " + vStart + " to End: " + vGoal, "", false);
 		// Incremental Phi* Logic
 		while (pool_open.size() > 0) {
 			Logger.log("Loop: ", "PathFinder", false);
 			current = getLowestF(pool_open, true);
 			if (current.equals(goal)) {
 				buildPath(goal);
-				path.set(0, vStart.copy().multiply((1f / getNodemap().getDensity() * 2)));
-				path.set(path.size() - 1, vGoal.copy().multiply((1f / getNodemap().getDensity() * 2)));
+				// path.set(0, vStart.copy().multiply((1f /
+				// getNodemap().getDensity() * 2)));
+				// path.set(path.size() - 1, vGoal.copy().multiply((1f /
+				// getNodemap().getDensity() * 2)));
 				Logger.log("Found path successfully . . . Now lets smooth", "PathFinder", false);
-				System.out.print("Found Path:");
-				for (Vector2 v : path) {
-					System.out.print(" " + v);
-				}
-				System.out.println();
-				// path = new PathSmoother(this,
-				// game).funnel(getEntity().getPathability(), path);
-				System.out.print("Found Smoothed Path:");
-				for (Vector2 v : path) {
-					System.out.print(" " + v.multiply(1f / 2f));
-				}
-				System.out.println();
 				return path;
 			} else {
 				close(current);
@@ -320,7 +310,7 @@ public class PathFinder {
 		if (!getParent(currentNode).equals(currentNode)) {
 			buildPath(getParent(currentNode));
 		}
-		path.add(currentNode.getPosition().copy().multiply((1 / nodemap.getDensity() * 2)));
+		path.add(currentNode.getPosition().copy().multiply((50 / nodemap.getDensity())));
 	}
 
 	private boolean inOpen(Node n) {

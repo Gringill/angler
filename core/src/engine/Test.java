@@ -3,19 +3,32 @@ package engine;
 import util.Vector2;
 
 public class Test {
-	public static void main(String[] args) {
+	public static String testGetBytes() {
+		
+		String s = "";
+		try {
+			byte[] ba = ("ř").getBytes("UTF16");
+			for (byte b : ba) {
+				System.out.format("%02x ", b);
+			}
+			s = s + " || ";
+			ba = ("ř").getBytes("UTF8");
+			for (byte b : ba) {
+				System.out.format("%02x ", b);
+			}
+			s = s + " || ";
+			ba = ("ř").getBytes("Latin1");
+			for (byte b : ba) {
+				System.out.format("%02x ", b);
+			}
+		} catch (Exception e) {
 
-		Vector2 v = new Vector2(1, 0);
-		v.setAngle(90);
-		Vector2 v2 = new Vector2(1, 0);
-		v2.setAngle(91);
-		if (v.copy().crs(v2) < 0) {
-			System.out.println(v2.angle() + " is right of " + v.angle());
-		} else {
-			System.out.println(v2.angle() + " is left of " + v.angle());
 		}
-		v = new Vector2(1, 0);
-		v2 = new Vector2(0, 1);
-		System.out.println(Math.acos(v.normalize().dot(v2.normalize())));
+		return s;
+	}
+
+	public static void main(String[] args) {
+		System.out.println(testGetBytes());
+		System.out.println(System.getProperty("file.encoding"));
 	}
 }
