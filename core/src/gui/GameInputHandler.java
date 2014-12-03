@@ -1,6 +1,5 @@
 package gui;
 
-import util.Util;
 import util.Vector2;
 
 import com.badlogic.gdx.Input.Buttons;
@@ -60,7 +59,7 @@ public class GameInputHandler implements InputProcessor {
 		if (getGame().getSelectedEntities().size() >= 1 && Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
 			// Force selected entities to face dragged mouse position
 			for (GameObject e : getGame().getSelectedEntities()) {
-				e.setFacing(e.getPosition().angleTowardsPoint(getGame().getUtil().getMouseWorldCoords(new Vector2(screenX, screenY), true)));
+				e.setFacing(e.getPosition().getAngleTowards(getGame().getUtil().getMouseWorldCoords(new Vector2(screenX, screenY), true)));
 			}
 		}
 		return false;

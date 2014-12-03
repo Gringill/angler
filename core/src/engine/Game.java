@@ -144,7 +144,7 @@ public class Game extends ApplicationAdapter implements ContactListener {
 			sr.begin(ShapeType.Line);
 			for (GameObject e : getLevel().getEntities()) {
 				if (e.isSelected()) {
-					sr.circle(e.getX(), (e.getY()), e.getSize() / 2f);
+					sr.circle(e.getX() - (camera.position.x - width / 2f), e.getY() - (camera.position.y - height / 2f), e.getSize() / 2f);
 				}
 			}
 

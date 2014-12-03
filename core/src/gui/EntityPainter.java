@@ -180,12 +180,12 @@ public class EntityPainter extends JFrame implements ListDataListener {
 			BufferedImage img = null;
 			try {
 				if (editor.getGame().getLevel().atlas.findRegion(t.getName()) != null) {
-					img = ImageIO.read(new File("bin/unpacked/" + t.getName() + ".png"));
+					img = ImageIO.read(new File("core/assets/unpacked/" + t.getName() + ".png"));
 				} else {
-					img = ImageIO.read(new File("bin/unpacked/ic_error.png"));
+					img = ImageIO.read(new File("core/assets/unpacked/ic_error.png"));
 				}
 				btn = new EntityButton(t, new ImageIcon(img.getScaledInstance(50, 50, Image.SCALE_SMOOTH)));
-				btn.setActionCommand("bin/unpacked/" + t.getName() + ".png");
+				btn.setActionCommand("core/assets/unpacked/" + t.getName() + ".png");
 				btn.addActionListener(tileActionListener);
 				btn.setBorder(BorderFactory.createRaisedBevelBorder());
 				pan_tiles.add(btn);

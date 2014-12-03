@@ -210,7 +210,7 @@ public class EditorInputHandler implements InputProcessor {
 			if (editor.getGame().getSelectedEntities().size() >= 1 && Gdx.input.isKeyPressed(Input.Keys.CONTROL_LEFT)) {
 				// Force selected entities to face dragged mouse position
 				for (GameObject e : editor.getGame().getSelectedEntities()) {
-					e.setFacing(e.getPosition().angleTowardsPoint(editor.getGame().getUtil().getMouseWorldCoords(new Vector2(screenX, screenY), true)));
+					e.setFacing(e.getPosition().getAngleTowards(editor.getGame().getUtil().getMouseWorldCoords(new Vector2(screenX, screenY), true)));
 				}
 			} else {
 				if (editor.getDraggedEntity() != null) {
