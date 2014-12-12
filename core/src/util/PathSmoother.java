@@ -18,7 +18,7 @@ public class PathSmoother {
     public PathSmoother(PathFinder path_finder, Game game) {
         this.game = game;
         this.path_finder = path_finder;
-        offset = path_finder.getEntity().getSize() / 2f / game.getUtil().getGameScale();
+        offset = path_finder.getEntity().getSize() / 2f / game.getUtil().getTileSize();
     }
 
     public static int getLinePointRelationship(Vector2 segmentStart, Vector2 segmentEnd, Vector2 v) {

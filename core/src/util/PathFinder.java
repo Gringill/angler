@@ -170,11 +170,18 @@ public class PathFinder {
             current = getLowestF(pool_open, true);
             if (current.equals(goal)) {
                 buildPath(goal);
-
-                path.set(0, vStart.copy().multiply((getEntity().getGame().getUtil().getGameScale() / getNodemap().getDensity())));
-                // path.set(path.size() - 1, vGoal.copy().multiply((1f /
-                // getNodemap().getDensity() * 2)));
+                path.set(0, vStart.copy().multiply((getEntity().getGame().getUtil().getTileSize() / getNodemap().getDensity())));
+                path.set(path.size() - 1, vGoal.copy().multiply((getEntity().getGame().getUtil().getTileSize() / getNodemap().getDensity())));
                 Logger.log("Found path successfully . . . Now lets smooth", "PathFinder", false);
+                Vector2 cornerAngle;
+                for (int i = 0; i < path.size() - 1; i++) {
+                    if (!(cornerAngle = nodemap.isCornerPathable(game.getUtil().getTileSize(), getEntity().getPathability(), path.get(i))).equals(NodeMap.CORNER_PATHABLE)) {
+                        // Vector has an unpathable neighbor - offset away from it
+                        System.out.println(path.get(i).toString());
+                        path.get(i).applyPolarOffset(getEntity().getSize() / 2, cornerAngle);
+                        System.out.println(path.get(i).toString());
+                    }
+                }
                 return path;
             } else {
                 close(current);
@@ -206,7 +213,8 @@ public class PathFinder {
         // getParent(current).getPosition());
         boolean losTest = nodemap.lineOfSight(entity.getPathability(), getParent(current).getPosition(), n.getPosition());
         double phi = phi(current.getPosition(), getParent(current).getPosition(), n.getPosition());
-        double distance = Util.getDistanceBetweenPoints(getParent(current).getPosition(), n.getPosition());
+        double distance = getParent(current).getPosition().getDistanceTo(n.getPosition());
+
         Logger.log("LOS from " + getParent(current).getPosition() + " to " + n.getPosition() + ": " + losTest, "computePath", false);
         Logger.log("Phi: " + phi, "computePath", false);
         Logger.log("Distance: " + distance, "computePath", false);
@@ -232,11 +240,7 @@ public class PathFinder {
                 setLowerBound(n, Math.max(l, (float) (getLowerBound(current) - phi)));
                 setUpperBound(n, Math.min(u, (float) (getUpperBound(current) - phi)));
             }
-        } else if (getG(current) + (distance = Util.getDistanceBetweenPoints(current.getPosition(), n.getPosition())) <= getG(n)) {
-            if ((n.getPosition().x == 2 && n.getPosition().y == 0) || (n.getPosition().x == 3 && n.getPosition().y == 1)) {
-                Logger.log("distance between " + current.getPosition() + " and " + n.getPosition() + ": " + distance, "PathFinder", false);
-                Logger.log("g(" + n + ") = g(" + current + ")" + getG(current) + " " + distance + " = " + (getG(current) + distance), "PathFinder", false);
-            }
+        } else if (getG(current) + (distance = current.getPosition().getDistanceTo(n.getPosition())) <= getG(n)) {
             Logger.log("Set " + n + "'s parent to " + current, "computePath", false);
             setParent(n, current);
             setG(n, getG(current) + distance);
