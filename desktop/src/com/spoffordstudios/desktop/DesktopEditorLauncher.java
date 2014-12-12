@@ -9,9 +9,9 @@ import engine.Game;
 public class DesktopEditorLauncher {
 	public static void main(String[] arg) {
 		Game game;
-		final LwjglCanvas canvasGame = new LwjglCanvas(game = new Game(1920 / 2, 1080 / 2));
+		final LwjglCanvas canvasGame = new LwjglCanvas(game = new Game(1920, 1080));
 		TexturePacker.process("core/assets/unpacked", "core/assets", Game.ATLAS_NAME);
-		Editor editor = new Editor(1920f / 2f, 1080f / 2f);
+		Editor editor = new Editor();
 		editor.connectToGame(game, canvasGame.getCanvas());
 	}
 }
