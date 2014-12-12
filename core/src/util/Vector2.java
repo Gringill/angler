@@ -1,5 +1,7 @@
 package util;
 
+import com.badlogic.gdx.math.Vector3;
+
 public class Vector2 extends com.badlogic.gdx.math.Vector2 {
     public static final short NORTH = 0;
     public static final short EAST = 1;
@@ -48,6 +50,12 @@ public class Vector2 extends com.badlogic.gdx.math.Vector2 {
     }
 
     public Vector2 sub(Vector2 v) {
+        x -= v.x;
+        y -= v.y;
+        return this;
+    }
+
+    public Vector2 sub(Vector3 v) {
         x -= v.x;
         y -= v.y;
         return this;
