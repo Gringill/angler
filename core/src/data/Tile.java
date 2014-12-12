@@ -39,24 +39,24 @@ public class Tile extends KineticObject {
 		setGame(game);
 		setSprite(s);
 		setName(tileName);
-		setPosition(new Vector2(x * game.getUtil().getGameScale(), y * game.getUtil().getGameScale()));
+		setPosition(new Vector2(x * game.getUtil().getTileSize(), y * game.getUtil().getTileSize()));
 
 		if (s != null) {
-			getSprite().setSize(game.getUtil().getGameScale(), game.getUtil().getGameScale());
+			getSprite().setSize(game.getUtil().getTileSize(), game.getUtil().getTileSize());
 		}
 	}
 
 	@Override
 	public void draw(SpriteBatch batch) {
-		float sWidth = getGame().getUtil().getGameScale();
-		float sHeight = getGame().getUtil().getGameScale();
+		float sWidth = getGame().getUtil().getTileSize();
+		float sHeight = getGame().getUtil().getTileSize();
 		batch.draw(getSprite(), (getX()), (getY()), (sWidth / 2), (sHeight / 2), sWidth, sHeight, 1, 1, getFacing().angle());
 	}
 
 	@Override
 	public void drawSelection(SpriteBatch batch) {
-		float sWidth = getGame().getUtil().getGameScale();
-		float sHeight = getGame().getUtil().getGameScale();
+		float sWidth = getGame().getUtil().getTileSize();
+		float sHeight = getGame().getUtil().getTileSize();
 		Sprite sprite = new Sprite(getGame().getLevel().getAtlas().findRegion("white_pixel"));
 		Color oldColor = batch.getColor();
 		batch.setColor(1, 1, 1, .30f);
@@ -119,7 +119,7 @@ public class Tile extends KineticObject {
 	public void generatePhysicsBody() {
 		BodyDef bodyDef = new BodyDef();
 		bodyDef.type = BodyType.StaticBody;
-		bodyDef.position.set((int) getX() / getGame().getUtil().getGameScale() + .5f, (int) getY() / getGame().getUtil().getGameScale() + .5f);
+		bodyDef.position.set((int) getX() / getGame().getUtil().getTileSize() + .5f, (int) getY() / getGame().getUtil().getTileSize() + .5f);
 		setBody(getGame().getWorld().createBody(bodyDef));
 		getBody().setSleepingAllowed(false);
 		PolygonShape poly = new PolygonShape();

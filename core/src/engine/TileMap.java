@@ -1,9 +1,7 @@
 package engine;
 
 import java.awt.Dimension;
-import java.util.ArrayList;
 
-import util.Logger;
 import util.Vector2;
 import data.Tile;
 
@@ -59,7 +57,7 @@ public class TileMap {
 					Tile t = (Tile) game.getLevel().getTileModel().get(i);
 					if (t.getName().equals(tiledef[x][y])) {
 						tiles[x][y] = new Tile(game);
-						tiles[x][y].setPosition(new Vector2(x * game.getUtil().getGameScale(), y * game.getUtil().getGameScale()));
+						tiles[x][y].setPosition(new Vector2(x * game.getUtil().getTileSize(), y * game.getUtil().getTileSize()));
 						tiles[x][y].defineAs(t, t.getAttributes());
 					}
 				}
@@ -82,9 +80,9 @@ public class TileMap {
 	 *            replaces the old tile at <code>position</code>
 	 */
 	public void setTileAtWorldPoint(Vector2 worldPoint, Tile tileType) {
-		worldPoint.snapToWorldPoint((int) game.getUtil().getGameScale());
-		float x = (worldPoint.x / game.getUtil().getGameScale());
-		float y = (worldPoint.y / game.getUtil().getGameScale());
+		worldPoint.snapToWorldPoint((int) game.getUtil().getTileSize());
+		float x = (worldPoint.x / game.getUtil().getTileSize());
+		float y = (worldPoint.y / game.getUtil().getTileSize());
 		tiles[(int) x][(int) y].defineAs(tileType, tileType.getAttributes());
 		x *= getNodeMap().getDensity();
 		y *= getNodeMap().getDensity();
@@ -133,7 +131,7 @@ public class TileMap {
 	}
 
 	public Tile getTileAtWorldCoords(Vector2 v) {
-		v.multiply(1 / game.getUtil().getGameScale());
+		v.multiply(1 / game.getUtil().getTileSize());
 		return getTiles()[(int) (v.x)][(int) (v.y)];
 	}
 }

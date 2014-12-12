@@ -53,8 +53,8 @@ public class Minimap extends JPanel implements MouseMotionListener {
 			for (Tile[] ta : game.getLevel().getTileMap().getTiles()) {
 				for (Tile t : ta) {
 					g.setColor(new Color(t.getColor().toIntBits()));
-					w = (game.getUtil().getGameScale() * xScale);
-					h = (game.getUtil().getGameScale() * xScale);
+					w = (game.getUtil().getTileSize() * xScale);
+					h = (game.getUtil().getTileSize() * xScale);
 					x = (t.getX() * xScale);
 					y = (size.height - (t.getY() * yScale + h)) + 1;
 					g.fillRect((int) x, (int) y, (int) w, (int) h);
@@ -73,11 +73,10 @@ public class Minimap extends JPanel implements MouseMotionListener {
 
 			// Draw camera to minimap
 			g.setColor(Color.YELLOW);
-			OrthographicCamera camera = game.getCamera();
-			Vector2 botLeft = game.getUtil().getCamBottomLeft(camera);
+			Vector2 botLeft = game.getUtil().getCamBottomLeft();
 			Util.flipY(botLeft);
-			w = (camera.viewportWidth * xScale) + 1;
-			h = (camera.viewportHeight * yScale) + 1;
+			w = (game.getCamera().viewportWidth * xScale) + 1;
+			h = (game.getCamera().viewportHeight * yScale) + 1;
 			x = (botLeft.x * xScale);
 			y = (botLeft.y * yScale) - h + 1;
 			g.drawRect((int) x, (int) y, (int) w, (int) h);
