@@ -2,6 +2,8 @@ package util;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.Sprite;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 import engine.Game;
 
@@ -19,8 +21,9 @@ public class Util {
     public static final short MASK_CLIP = CATEGORY_ENTITY | CATEGORY_WATER;
     public static final short MASK_NOCLIP = 0;
 
-    private int game_scale = 50;
+    private int tileSize = 50;
     private Game game;
+    private Sprite rectSprite;
 
     public Util(Game game) {
         this.game = game;
@@ -169,6 +172,9 @@ public class Util {
         }
 
         localMouse.add(cam);
+//        localMouse.x *= game.getStretch().x;
+//        localMouse.y *= game.getStretch().y;
+
         return localMouse;
     }
 
@@ -186,22 +192,39 @@ public class Util {
         return getMouseWorldCoords(new Vector2(localMouse.x, localMouse.y), doFlipY);
     }
 
-    public float getGameScale() {
-        return game_scale;
+    public float getTileSize() {
+        return tileSize;
     }
 
-    public void setGameScale(int size) {
-        game_scale = size;
-    }
-
-    public Vector2 getCamBottomLeft(OrthographicCamera camera) {
+    public Vector2 getCamBottomLeft() {
+        OrthographicCamera camera;
         camera = game.getCamera();
         Vector2 botLeft = new Vector2(camera.position.x, camera.position.y);
         botLeft.sub((new Vector2(camera.viewportWidth / 2, camera.viewportHeight / 2)));
         return botLeft;
     }
 
-    public boolean isPointInBounds(Vector2 v) {
-        return v.x >= 0 && v.x < game.getGameWidth() && v.y >= 0 && v.y < game.getGameHeight();
+    public void drawRect(SpriteBatch batch, int x, int y, int width, int height, int thickness) {
+        batch.draw(rectSprite, x, y, width, thickness);
+        batch.draw(rectSprite, x, y, thickness, height);
+        batch.draw(rectSprite, x, y+height-thickness, width, thickness);
+        batch.draw(rectSprite, x+width-thickness, y, thickness, height);
+    }
+
+    public void drawLine(SpriteBatch batch, int x1, int y1, int x2, int y2, int thickness) {
+        int dx = x2-x1;
+        int dy = y2-y1;
+        float dist = (float)Math.sqrt(dx*dx + dy*dy);
+        float deg = (float) Math.toDegrees(Math.atan2(dy, dx));
+        rectSprite.setColor(1,0,0,1);
+        batch.draw(rectSprite, x1, y1, 0, 0, dist, thickness, 1, 1, deg);
+    }
+
+    public void setRectSprite(Sprite rectSprite) {
+        this.rectSprite = rectSprite;
+    }
+
+    public Sprite getRectSprite() {
+        return rectSprite;
     }
 }
