@@ -1,5 +1,6 @@
-package gui;
+package engine;
 
+import gui.panel.InputAttribute;
 import util.Logger;
 import util.Util;
 import util.Vector2;
@@ -13,8 +14,6 @@ import com.badlogic.gdx.math.Rectangle;
 import data.Entity;
 import data.GameObject;
 import data.Tile;
-import engine.Editor;
-import engine.Game;
 
 public class EditorInputHandler implements InputProcessor {
 	private Editor editor;
@@ -156,7 +155,8 @@ public class EditorInputHandler implements InputProcessor {
 							ent.setSelected(true);
 							editor.setDraggedEntity(ent);
 						} else {
-							gameInputHandler.setDragBeginPoint(editor.getGame().getUtil().getMouseWorldCoords(new Vector2(screenX, screenY), true));
+							Vector2 coords = editor.getGame().getUtil().getMouseWorldCoords(new Vector2(screenX, screenY), true);
+							gameInputHandler.setDragBeginPoint(coords);
 						}
 					} else {
 						// Changing rotation

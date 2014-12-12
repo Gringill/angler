@@ -1,4 +1,4 @@
-package gui;
+package gui.panel;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -31,6 +31,7 @@ import javax.swing.event.ListDataListener;
 import data.GameObject;
 import data.Tile;
 import engine.Editor;
+import gui.WrapLayout;
 
 public class EntityPainter extends JFrame implements ListDataListener {
 	private static final String FRAME_NAME = "Entity Editor";
@@ -117,8 +118,8 @@ public class EntityPainter extends JFrame implements ListDataListener {
 							GameObject e = editor.getEntityCursor();
 							e.setBuilding(true);
 							e.setSprite(null);
-							e.setWidth(editor.getGame().getUtil().getGameScale());
-							e.setHeight(editor.getGame().getUtil().getGameScale());
+							e.setWidth(editor.getGame().getUtil().getTileSize());
+							e.setHeight(editor.getGame().getUtil().getTileSize());
 						}
 					}
 				}

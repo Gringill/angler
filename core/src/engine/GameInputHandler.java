@@ -1,4 +1,4 @@
-package gui;
+package engine;
 
 import util.Vector2;
 
