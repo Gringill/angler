@@ -66,12 +66,12 @@ public abstract class GameObject implements Json.Serializable {
 		return position.y;
 	}
 
-	public void setSprite(Sprite newSprite) {
-		sprite = newSprite;
-	}
-
 	public Sprite getSprite() {
 		return sprite;
+	}
+
+	public void setSprite(Sprite newSprite) {
+		sprite = newSprite;
 	}
 
 	@Override
@@ -83,8 +83,16 @@ public abstract class GameObject implements Json.Serializable {
 		return health;
 	}
 
+	public void setHealth(Float val) {
+		health = val;
+	}
+
 	public boolean isBuilding() {
 		return isBuilding;
+	}
+
+	public void setBuilding(Boolean val) {
+		isBuilding = val;
 	}
 
 	public String getName() {
@@ -95,28 +103,20 @@ public abstract class GameObject implements Json.Serializable {
 		name = newName;
 	}
 
-	public void setHealth(Float val) {
-		health = val;
-	}
-
-	public void setBuilding(Boolean val) {
-		isBuilding = val;
+	public String getTexture() {
+		return texture;
 	}
 
 	public void setTexture(String val) {
 		texture = val;
 	}
 
-	public String getTexture() {
-		return texture;
+	public float getSize() {
+		return size;
 	}
 
 	public void setSize(float val) {
 		size = val;
-	}
-
-	public float getSize() {
-		return size;
 	}
 
 	public Vector2 getPosition() {
@@ -131,7 +131,7 @@ public abstract class GameObject implements Json.Serializable {
 	 * Pulls all attributes from the source entity and puts them into this
 	 * entity, effectively redefining this entity as an instance of the source
 	 * entity. The sprite field is cloned in a shallow manner.
-	 * 
+	 *
 	 * @param sourceEntity
 	 * @return
 	 */
@@ -163,6 +163,10 @@ public abstract class GameObject implements Json.Serializable {
 		return selected;
 	}
 
+	public void setSelected(boolean b) {
+		selected = b;
+	}
+
 	public abstract void buildAttributes();
 
 	public Game getGame() {
@@ -179,10 +183,6 @@ public abstract class GameObject implements Json.Serializable {
 
 	public void setFacing(double newFacing) {
 		facing.setAngleRad((float) newFacing);
-	}
-
-	public void setSelected(boolean b) {
-		selected = b;
 	}
 
 	public float getWidth() {
