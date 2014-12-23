@@ -20,8 +20,6 @@ import data.Level;
 import data.Tile;
 import util.Util;
 import util.Vector2;
-
-import java.awt.*;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.util.ArrayList;
@@ -70,31 +68,33 @@ public class Game extends ApplicationAdapter implements ContactListener {
         debugRenderer = new Box2DDebugRenderer();
         camera = new OrthographicCamera(width, height);
         camera.position.set(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f, 0);
-        editor.getCanvas().addComponentListener(new ComponentListener() {
-            @Override
-            public void componentResized(ComponentEvent e) {
-                camera.setToOrtho(false, e.getComponent().getWidth(), e.getComponent().getHeight());
-            }
+        if (editor != null) {
+            editor.getCanvas().addComponentListener(new ComponentListener() {
+                @Override
+                public void componentResized(ComponentEvent e) {
+                    camera.setToOrtho(false, e.getComponent().getWidth(), e.getComponent().getHeight());
+                }
 
-            @Override
-            public void componentMoved(ComponentEvent e) {
+                @Override
+                public void componentMoved(ComponentEvent e) {
 
-            }
+                }
 
-            @Override
-            public void componentShown(ComponentEvent e) {
+                @Override
+                public void componentShown(ComponentEvent e) {
 
-            }
+                }
 
-            @Override
-            public void componentHidden(ComponentEvent e) {
+                @Override
+                public void componentHidden(ComponentEvent e) {
 
-            }
-        });
+                }
+            });
+        }
         // TODO Implement default level
         // Level level = Level.getDefaultLevel();
         // Net.setupGameClient();
-        // loadLevel(level);
+//        loadLevel(level);
         inputHandler = new GameInputHandler(this);
         if (Gdx.input.getInputProcessor() == null) {
             Gdx.input.setInputProcessor(inputHandler);

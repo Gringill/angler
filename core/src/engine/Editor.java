@@ -55,6 +55,7 @@ public class Editor extends JFrame {
         // Build Interface
         defineNorth();
         defineSouth();
+
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setJMenuBar(defineEditorMenuBar());
     }
@@ -171,6 +172,9 @@ public class Editor extends JFrame {
         game.setEditor(this);
         canvas.setSize(1920, 1080);
         getContentPane().add(canvas, BorderLayout.CENTER);
+        JPanel panel = new JPanel();
+        panel.add(game.getMinimap());
+        getContentPane().add(panel, BorderLayout.WEST);
         setVisible(true);
         revalidate();
         requestFocus();

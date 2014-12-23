@@ -8,16 +8,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
-
 import javax.swing.AbstractAction;
 import javax.swing.JPanel;
 import javax.swing.Timer;
-
 import util.Util;
 import util.Vector2;
-
-import com.badlogic.gdx.graphics.OrthographicCamera;
-
 import data.GameObject;
 import data.Tile;
 
@@ -29,6 +24,7 @@ public class Minimap extends JPanel implements MouseMotionListener {
 	public Minimap(Game game) {
 		this.game = game;
 		setPreferredSize(new Dimension(300, 300));
+		setMaximumSize(new Dimension(300, 300));
 		addMouseMotionListener(this);
 		AbstractAction a = new AbstractAction() {
 			@Override
@@ -74,11 +70,11 @@ public class Minimap extends JPanel implements MouseMotionListener {
 			// Draw camera to minimap
 			g.setColor(Color.YELLOW);
 			Vector2 botLeft = game.getUtil().getCamBottomLeft();
-			Util.flipY(botLeft);
+//			Util.flipY(botLeft);
 			w = (game.getCamera().viewportWidth * xScale) + 1;
 			h = (game.getCamera().viewportHeight * yScale) + 1;
 			x = (botLeft.x * xScale);
-			y = (botLeft.y * yScale) - h + 1;
+			y = (botLeft.y * yScale);
 			g.drawRect((int) x, (int) y, (int) w, (int) h);
 		}
 	}
