@@ -10,12 +10,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.esotericsoftware.minlog.Log;
 import data.Entity;
 import data.GameObject;
 import data.Level;
-import gui.screens.Main;
+import gui.screens.StageManager;
 import util.Util;
 import util.Vector2;
 
@@ -37,7 +36,7 @@ public class Game extends ApplicationAdapter implements ContactListener {
     public static final String APP_NAME = "Sheep Tag v" + APP_VERSION;
     public static final String ATLAS_NAME = "atlas0";
     public static final String COMMAND_MOVE = "COMMAND_MOVE";
-    private Stage stage;
+    private StageManager stageManager;
     private Level level;
     private SpriteBatch batch;
     private OrthographicCamera camera;
@@ -67,10 +66,9 @@ public class Game extends ApplicationAdapter implements ContactListener {
 //        debugRenderer = new Box2DDebugRenderer();
         camera = new OrthographicCamera(width, height);
         camera.position.set(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f, 0);
-        stage = Main.getStage(width, height);
-        Gdx.input.setInputProcessor(stage);
-        System.out.println("Stage Created");
-        // TODO Handle input
+        (stageManager = new StageManager(width, height)).setStage(StageManager.STAGE_MAIN);
+        // TODO Handle input via stages
+
 //        if (editor != null) {
 //            editor.getCanvas().addComponentListener(new ComponentListener() {
 //                @Override
@@ -110,9 +108,9 @@ public class Game extends ApplicationAdapter implements ContactListener {
 
     @Override
     public void render() {
+        Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        stage.act(Gdx.graphics.getDeltaTime());
-        stage.draw();
+        stageManager.draw();
 //        processInput();
 //        camera.update();
 //        batch.setProjectionMatrix(camera.combined);
@@ -184,7 +182,7 @@ public class Game extends ApplicationAdapter implements ContactListener {
 
     @Override
     public void resize(int width, int height) {
-        stage.getViewport().update(width, height, true);
+        stageManager.resize(width, height);
     }
 
     public Level getLevel() {
@@ -332,6 +330,6 @@ public class Game extends ApplicationAdapter implements ContactListener {
     }
 
     public void dispose() {
-        stage.dispose();
+        stageManager.dispose();
     }
 }

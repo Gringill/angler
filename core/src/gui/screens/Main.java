@@ -1,57 +1,41 @@
 package gui.screens;
 
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.g2d.Batch;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.scenes.scene2d.*;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 /**
  * Created by danny_000 on 12/23/2014.
  */
-public abstract class Main {
-    private static Stage stage;
+public class Main extends Stage {
+    private Table table;
+    private ShapeRenderer shapeRenderer;
 
-    public static Stage getStage(int width, int height) {
-        return (stage != null) ? stage : defineStage(width, height);
-    }
+    public Main(int width, int height) {
+        super(new FitViewport(width, height));
+        TextureAtlas atlas = new TextureAtlas("uiskin.atlas");
+        Skin skin = new Skin(Gdx.files.internal("core/assets/uiskin.json"), atlas);
+        skin.addRegions(atlas);
 
-    private static Stage defineStage(int width, int height) {
-        stage = new Stage(new FitViewport(width, height));
-        Actor testActor = new Actor() {
-            private ShapeRenderer renderer = new ShapeRenderer();
+        Label nameLabel = new Label("Name:", skin);
+        TextField nameText = new TextField("", skin);
+        Label addressLabel = new Label("Address:", skin);
+        TextField addressText = new TextField("", skin);
 
-            @Override
-            public void draw(Batch batch, float parentAlpha) {
-                batch.end();
-
-                renderer.setProjectionMatrix(batch.getProjectionMatrix());
-                renderer.setTransformMatrix(batch.getTransformMatrix());
-                renderer.translate(getX(), getY(), 0);
-
-                renderer.begin(ShapeRenderer.ShapeType.Filled);
-                renderer.setColor(Color.BLUE);
-                renderer.rect(0, 0, getWidth(), getHeight());
-                renderer.end();
-
-                batch.begin();
-            }
-        };
-        testActor.setColor(Color.RED);
-        testActor.setBounds(0, 0, 250, 250);
-        testActor.setVisible(true);
-        testActor.setTouchable(Touchable.enabled);
-        testActor.addListener(new InputListener() {
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("down");
-                return true;
-            }
-
-            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
-                System.out.println("up");
-            }
-        });
-        stage.addActor(testActor);
-        return stage;
+        table = new Table();
+        table.add(nameLabel);
+        table.add(nameText).width(100);
+        table.row();
+        table.add(addressLabel);
+        table.add(addressText).width(100);
+        table.setFillParent(true);
+        addActor(table);
+        shapeRenderer = new ShapeRenderer();
     }
 }
