@@ -1,20 +1,19 @@
 package engine;
 
-import java.awt.EventQueue;
-import java.io.IOException;
-
-import javax.swing.JOptionPane;
-
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.EndPoint;
 import com.esotericsoftware.kryonet.Listener;
 
+import javax.swing.*;
+import java.awt.*;
+import java.io.IOException;
+
 // This class is a convenient place to keep things common to both the client and server.
 public class Net {
-	private static final String SERVER_IP = "54.191.166.71";
 	public static final int port = 54555;
+	private static final String SERVER_IP = "54.191.166.71";
 	public static Client CLIENT;
 	private static String sessionID;
 
@@ -28,18 +27,6 @@ public class Net {
 		if (endPoint instanceof Client) {
 			defineClientNetListener((Client) endPoint);
 		}
-	}
-
-	static public class RegisterName {
-		public String name;
-	}
-
-	static public class UpdateNames {
-		public String[] names;
-	}
-
-	static public class ChatMessage {
-		public String text;
 	}
 
 	private static void defineClientNetListener(final Client client) {
@@ -102,5 +89,17 @@ public class Net {
 				}
 			}
 		}.start();
+	}
+
+	static public class RegisterName {
+		public String name;
+	}
+
+	static public class UpdateNames {
+		public String[] names;
+	}
+
+	static public class ChatMessage {
+		public String text;
 	}
 }

@@ -1,50 +1,38 @@
 package engine;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
+import data.GameObject;
+import data.Tile;
+import util.Util;
+import util.Vector2;
+
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.util.ArrayList;
-import javax.swing.AbstractAction;
-import javax.swing.JPanel;
-import javax.swing.Timer;
-import util.Util;
-import util.Vector2;
-import data.GameObject;
-import data.Tile;
 
-public class Minimap extends JPanel implements MouseMotionListener {
+public class Minimap implements MouseMotionListener {
 	Game game;
 	private ArrayList<GameObject> entities = new ArrayList<GameObject>();
-	private Dimension actualSize = new Dimension();
+	private Dimension levelSizeGU = new Dimension();
+	// TODO Define size
+	private Dimension minimapSizeSU = new Dimension(300, 300);
 
 	public Minimap(Game game) {
 		this.game = game;
-		setPreferredSize(new Dimension(300, 300));
-		setMaximumSize(new Dimension(300, 300));
-		addMouseMotionListener(this);
-		AbstractAction a = new AbstractAction() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				repaint();
-			}
-		};
-		new Timer(1, a).start();
+		// TODO Listen for mouse events
 	}
 
-	@Override
+	// TODO Render minimap
 	public void paint(Graphics g) {
-		Dimension size = getSize();
+
 		double w, h, x, y;
-		double xScale = (size.width / actualSize.getWidth());
-		double yScale = (size.height / actualSize.getHeight());
+		double xScale = (minimapSizeSU.width / levelSizeGU.getWidth());
+		double yScale = (minimapSizeSU.height / levelSizeGU.getHeight());
 
 		if (game.getLevel() != null) {
 			g.setColor(Color.black);
-			g.fillRect(0, 0, (int) size.getWidth(), (int) size.getHeight());
+			g.fillRect(0, 0, (int) minimapSizeSU.getWidth(), (int) minimapSizeSU.getHeight());
+
 			// Draw tiles to minimap
 			for (Tile[] ta : game.getLevel().getTileMap().getTiles()) {
 				for (Tile t : ta) {
@@ -52,7 +40,7 @@ public class Minimap extends JPanel implements MouseMotionListener {
 					w = (game.getUtil().getTileSize() * xScale);
 					h = (game.getUtil().getTileSize() * xScale);
 					x = (t.getX() * xScale);
-					y = (size.height - (t.getY() * yScale + h)) + 1;
+					y = (minimapSizeSU.height - (t.getY() * yScale + h)) + 1;
 					g.fillRect((int) x, (int) y, (int) w, (int) h);
 				}
 			}
@@ -63,7 +51,7 @@ public class Minimap extends JPanel implements MouseMotionListener {
 				w = (e.getSprite().getWidth() * xScale);
 				h = (e.getSprite().getHeight() * yScale);
 				x = (e.getX() * xScale) - w / 2;
-				y = ((size.height - e.getY() * yScale) - h / 2) + 1;
+				y = ((minimapSizeSU.height - e.getY() * yScale) - h / 2) + 1;
 				g.fillOval((int) x, (int) y, (int) w, (int) h);
 			}
 
@@ -88,17 +76,16 @@ public class Minimap extends JPanel implements MouseMotionListener {
 	}
 
 	public void updateSize() {
-		this.actualSize.width = (int) (game.getLevel().getTileMap().getSize().getWidth() * 50) - 1;
-		this.actualSize.height = (int) (game.getLevel().getTileMap().getSize().getHeight() * 50) - 1;
+		this.levelSizeGU.width = (int) (game.getLevel().getTileMap().getSize().getWidth() * 50) - 1;
+		this.levelSizeGU.height = (int) (game.getLevel().getTileMap().getSize().getHeight() * 50) - 1;
 	}
 
 	@Override
 	public void mouseDragged(MouseEvent e) {
-		Dimension size = getSize();
-		float xScale = (float) (actualSize.getWidth() / size.width);
-		float yScale = (float) (actualSize.getHeight() / size.height);
+		float xScale = (float) (levelSizeGU.getWidth() / minimapSizeSU.width);
+		float yScale = (float) (levelSizeGU.getHeight() / minimapSizeSU.height);
 		Point worldClick = e.getPoint();
-		Util.flipY(worldClick, getHeight());
+		Util.flipY(worldClick, minimapSizeSU.height);
 		worldClick.x = (int) (worldClick.x * (xScale));
 		worldClick.y = (int) (worldClick.y * (yScale));
 		game.getCamera().position.set(worldClick.x, worldClick.y, 0);

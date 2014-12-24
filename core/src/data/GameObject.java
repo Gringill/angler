@@ -1,17 +1,15 @@
 package data;
 
-import java.util.ArrayList;
-
-import util.Util;
-import util.Vector2;
-
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
-
 import engine.Game;
 import engine.NodeMap;
+import util.Util;
+import util.Vector2;
+
+import java.util.ArrayList;
 
 public abstract class GameObject implements Json.Serializable {
 	public final ArrayList<String> myAttributes = new ArrayList<String>();

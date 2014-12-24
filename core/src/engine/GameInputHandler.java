@@ -1,14 +1,11 @@
 package engine;
 
-import util.Vector2;
-
-import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.badlogic.gdx.Input.Buttons;
 import com.badlogic.gdx.InputProcessor;
-
 import data.GameObject;
-import engine.Game;
+import util.Vector2;
 
 public class GameInputHandler implements InputProcessor {
 	private Game game;

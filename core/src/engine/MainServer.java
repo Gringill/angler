@@ -1,16 +1,15 @@
 package engine;
 
-import java.io.IOException;
-import java.util.ArrayList;
-
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.esotericsoftware.kryonet.Server;
 import com.esotericsoftware.minlog.Log;
-
 import engine.Net.ChatMessage;
 import engine.Net.RegisterName;
 import engine.Net.UpdateNames;
+
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class MainServer {
 	Server server;
@@ -75,6 +74,11 @@ public class MainServer {
 		server.start();
 	}
 
+	public static void main(String[] args) throws IOException {
+		Log.set(Log.LEVEL_DEBUG);
+		new MainServer();
+	}
+
 	void updateNames() {
 		Connection[] connections = server.getConnections();
 		ArrayList<String> names = new ArrayList<String>(connections.length);
@@ -83,16 +87,11 @@ public class MainServer {
 			names.add(connection.name);
 		}
 		UpdateNames updateNames = new UpdateNames();
-		updateNames.names = (String[]) names.toArray(new String[names.size()]);
+		updateNames.names = names.toArray(new String[names.size()]);
 		server.sendToAllTCP(updateNames);
 	}
 
 	static class ChatConnection extends Connection {
 		public String name;
-	}
-
-	public static void main(String[] args) throws IOException {
-		Log.set(Log.LEVEL_DEBUG);
-		new MainServer();
 	}
 }

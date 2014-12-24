@@ -1,9 +1,9 @@
 package data;
 
-import java.util.ArrayList;
-
-import util.Vector2;
 import engine.NodeMap;
+import util.Vector2;
+
+import java.util.ArrayList;
 
 public class Node {
 	public static final int MOVE_COST_CARDINAL = 10;

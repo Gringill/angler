@@ -1,32 +1,20 @@
 package gui.panel;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Image;
-import java.awt.Rectangle;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
+import data.Attribute;
+import engine.Game;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
-import com.badlogic.gdx.graphics.g2d.TextureAtlas.AtlasRegion;
-
-import data.Attribute;
-import engine.Game;
-
 public class InputTexture extends JPanel {
+	boolean wait = true;
 	private Game game;
 	private String texture;
-	boolean wait = true;
 
 	public InputTexture(Game game) {
 		final TextureView view = new TextureView();

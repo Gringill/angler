@@ -7,7 +7,6 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import engine.Editor;
-import engine.NodeMap;
 import engine.TileMap;
 import util.Util;
 
@@ -78,9 +77,9 @@ public class Level implements Json.Serializable {
     }
 
     private static void defineDefaultData(Editor editor, Level level) {
-        editor.initializeObjectEditor();
-        editor.getObjectEditor().newTile("Grass", null, NodeMap.PATH_GROUND, new Color(0, 255, 0));
-        editor.getObjectEditor().newTile("Water", "water", NodeMap.PATH_SWIMMING, new Color(0, 0, 255));
+//        editor.initializeObjectEditor();
+//        editor.getObjectEditor().newTile("Grass", null, NodeMap.PATH_GROUND, new Color(0, 255, 0));
+//        editor.getObjectEditor().newTile("Water", "water", NodeMap.PATH_SWIMMING, new Color(0, 0, 255));
     }
 
     /**
@@ -96,7 +95,7 @@ public class Level implements Json.Serializable {
         Level level = new Json().readValue(Level.class, jsonData);
         editor.getGame().setLevel(level); // Called again when this method returns but needed before then.
         level.getTileMap().connectToGame(editor.getGame());
-        editor.initializeObjectEditor();
+//        editor.initializeObjectEditor();
         for (Entity e : level.getEntities()) {
             e.setSprite(new Sprite(level.getAtlas().findRegion(Util.pullRegionFromTexture(e.getTexture()))));
             e.setGame(editor.getGame());

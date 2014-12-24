@@ -1,9 +1,9 @@
 package engine;
 
-import java.awt.Dimension;
-
-import util.Vector2;
 import data.Tile;
+import util.Vector2;
+
+import java.awt.*;
 
 public class TileMap {
 	private static int DEFAULT_WIDTH = 25, DEFAULT_HEIGHT = 25;

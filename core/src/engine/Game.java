@@ -3,25 +3,22 @@ package engine;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.*;
-import com.badlogic.gdx.scenes.scene2d.utils.ScissorStack;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.esotericsoftware.minlog.Log;
 import data.Entity;
 import data.GameObject;
 import data.Level;
-import data.Tile;
+import gui.screens.Main;
 import util.Util;
 import util.Vector2;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
+
 import java.util.ArrayList;
 
 /**
@@ -40,10 +37,11 @@ public class Game extends ApplicationAdapter implements ContactListener {
     public static final String APP_NAME = "Sheep Tag v" + APP_VERSION;
     public static final String ATLAS_NAME = "atlas0";
     public static final String COMMAND_MOVE = "COMMAND_MOVE";
+    private Stage stage;
     private Level level;
     private SpriteBatch batch;
     private OrthographicCamera camera;
-    private float width, height;
+    private int width, height;
     private ArrayList<Entity> selectedEntities = new ArrayList<Entity>();
     private World world;
     private Box2DDebugRenderer debugRenderer;
@@ -55,7 +53,7 @@ public class Game extends ApplicationAdapter implements ContactListener {
     private Editor editor;
     private ShapeRenderer sr;
 
-    public Game(float width, float height) {
+    public Game(int width, int height) {
         this.width = width;
         this.height = height;
         minimap = new Minimap(this);
@@ -63,115 +61,130 @@ public class Game extends ApplicationAdapter implements ContactListener {
 
     @Override
     public void create() {
-        world = new World(new Vector2(0, 0), true);
-        world.setContactListener(this);
-        debugRenderer = new Box2DDebugRenderer();
+//        TODO Init Physics
+//        world = new World(new Vector2(0, 0), true);
+//        world.setContactListener(this);
+//        debugRenderer = new Box2DDebugRenderer();
         camera = new OrthographicCamera(width, height);
         camera.position.set(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f, 0);
-        if (editor != null) {
-            editor.getCanvas().addComponentListener(new ComponentListener() {
-                @Override
-                public void componentResized(ComponentEvent e) {
-                    camera.setToOrtho(false, e.getComponent().getWidth(), e.getComponent().getHeight());
-                }
-
-                @Override
-                public void componentMoved(ComponentEvent e) {
-
-                }
-
-                @Override
-                public void componentShown(ComponentEvent e) {
-
-                }
-
-                @Override
-                public void componentHidden(ComponentEvent e) {
-
-                }
-            });
-        }
-        // TODO Implement default level
-        // Level level = Level.getDefaultLevel();
-        // Net.setupGameClient();
+        stage = Main.getStage(width, height);
+        Gdx.input.setInputProcessor(stage);
+        System.out.println("Stage Created");
+        // TODO Handle input
+//        if (editor != null) {
+//            editor.getCanvas().addComponentListener(new ComponentListener() {
+//                @Override
+//                public void componentResized(ComponentEvent e) {
+//                    camera.setToOrtho(false, e.getComponent().getWidth(), e.getComponent().getHeight());
+//                }
+//
+//                @Override
+//                public void componentMoved(ComponentEvent e) {
+//
+//                }
+//
+//                @Override
+//                public void componentShown(ComponentEvent e) {
+//
+//                }
+//
+//                @Override
+//                public void componentHidden(ComponentEvent e) {
+//
+//                }
+//            });
+//        }
+//        TODO Implement default level
+//        Level level = Level.getDefaultLevel();
+//        Net.setupGameClient();
 //        loadLevel(level);
-        inputHandler = new GameInputHandler(this);
-        if (Gdx.input.getInputProcessor() == null) {
-            Gdx.input.setInputProcessor(inputHandler);
-        }
-        sr = new ShapeRenderer();
-        batch = new SpriteBatch(1000);
+//        inputHandler = new GameInputHandler(this);
+//        if (Gdx.input.getInputProcessor() == null) {
+//            Gdx.input.setInputProcessor(inputHandler);
+//        }
+
+//        TODO Init Rendering Managers
+//        sr = new ShapeRenderer();
+//        batch = new SpriteBatch(1000);
     }
 
     @Override
     public void render() {
-        processInput();
-        camera.update();
-        batch.setProjectionMatrix(camera.combined);
-
-        Rectangle scissors = new Rectangle();
-        Rectangle clipBounds = new Rectangle(camera.position.x - width / 2f, camera.position.y - height / 2f, width, height);
-        ScissorStack.calculateScissors(camera, batch.getTransformMatrix(), clipBounds, scissors);
-        ScissorStack.pushScissors(scissors);
-
-        Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-        if (getLevel() != null) {
-            sr.setProjectionMatrix(camera.combined);
-            batch.begin();
+        stage.act(Gdx.graphics.getDeltaTime());
+        stage.draw();
+//        processInput();
+//        camera.update();
+//        batch.setProjectionMatrix(camera.combined);
+//
+//        Rectangle scissors = new Rectangle();
+//        Rectangle clipBounds = new Rectangle(camera.position.x - width / 2f, camera.position.y - height / 2f, width, height);
+//        ScissorStack.calculateScissors(camera, batch.getTransformMatrix(), clipBounds, scissors);
+//        ScissorStack.pushScissors(scissors);
+//
+//        Gdx.gl.glClearColor(1, 1, 1, 1);
+//        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+//        if (getLevel() != null) {
+//            sr.setProjectionMatrix(camera.combined);
+//            batch.begin();
+//
+//            for (Tile[] ta : getLevel().getTileMap().getTiles()) {
+//                for (Tile t : ta) {
+//                    t.update();
+//                    t.draw(batch);
+//                }
+//            }
+//            if (editor.getSelectedTile() != null) {
+//                editor.getSelectedTile().drawSelection(batch);
+//            }
+//
+//            for (GameObject e : getLevel().getEntities()) {
+//                e.update();
+//                e.draw(batch);
+//            }
+//
+//            if (drawGrid) {
+//                for (int y = 0; y < editor.getCanvas().getHeight() / 50; y++) {
+//                    getUtil().drawLine(batch, 1, (y * 50), editor.getCanvas().getWidth(), (y * 50), 1);
+//                }
+//                for (int x = 0; x < editor.getCanvas().getWidth() / 50; x++) {
+//                    getUtil().drawLine(batch, (x * 50), 1, (x * 50), editor.getCanvas().getHeight(), 1);
+//                }
+//            }
+//
+//            batch.flush();
+//            batch.end();
+//
+//
+//            sr.begin(ShapeType.Line);
+//
+//            for (GameObject e : getLevel().getEntities()) {
+//                if (e.isSelected()) {
+//                    sr.circle(e.getX(), e.getY(), e.getSize() / 2f);
+//                }
+//            }
+//
+//            if (inputHandler.getDragBeginPoint() != null) {
+//                Vector2 mouseLocalCoords = new Vector2(Gdx.input.getX(), Gdx.input.getY());
+//                Vector2 mouseWorldCoords = getUtil().getMouseWorldCoords(mouseLocalCoords, true);
+//                mouseWorldCoords.x += (camera.position.x - camera.viewportWidth / 2);
+//                mouseWorldCoords.y += (camera.position.y - camera.viewportHeight / 2);
+//                Vector2 begin = inputHandler.getDragBeginPoint();
+//                sr.rect(begin.x, begin.y, mouseWorldCoords.x - begin.x, mouseWorldCoords.y - begin.y);
+//            }
+//
+//            debugRenderer.render(world, camera.combined.cpy().scale(util.getTileSize(), util.getTileSize(), 1));
+//            world.step(1 / 60f, 6, 2);
+//            sr.flush();
+//            sr.end();
+//        }
+//
+//        ScissorStack.popScissors();
+    }
 
-            for (Tile[] ta : getLevel().getTileMap().getTiles()) {
-                for (Tile t : ta) {
-                    t.update();
-                    t.draw(batch);
-                }
-            }
-            if (editor.getSelectedTile() != null) {
-                editor.getSelectedTile().drawSelection(batch);
-            }
-
-            for (GameObject e : getLevel().getEntities()) {
-                e.update();
-                e.draw(batch);
-            }
-
-            if (drawGrid) {
-                for (int y = 0; y < editor.getCanvas().getHeight() / 50; y++) {
-                    getUtil().drawLine(batch, 1, (y * 50), editor.getCanvas().getWidth(), (y * 50), 1);
-                }
-                for (int x = 0; x < editor.getCanvas().getWidth() / 50; x++) {
-                    getUtil().drawLine(batch, (x * 50), 1, (x * 50), editor.getCanvas().getHeight(), 1);
-                }
-            }
-
-            batch.flush();
-            batch.end();
-
-
-            sr.begin(ShapeType.Line);
-
-            for (GameObject e : getLevel().getEntities()) {
-                if (e.isSelected()) {
-                    sr.circle(e.getX(), e.getY(), e.getSize() / 2f);
-                }
-            }
-
-            if (inputHandler.getDragBeginPoint() != null) {
-                Vector2 mouseLocalCoords = new Vector2(Gdx.input.getX(), Gdx.input.getY());
-                Vector2 mouseWorldCoords = getUtil().getMouseWorldCoords(mouseLocalCoords, true);
-                mouseWorldCoords.x += (camera.position.x - camera.viewportWidth / 2);
-                mouseWorldCoords.y += (camera.position.y - camera.viewportHeight / 2);
-                Vector2 begin = inputHandler.getDragBeginPoint();
-                sr.rect(begin.x, begin.y, mouseWorldCoords.x - begin.x, mouseWorldCoords.y - begin.y);
-            }
-
-            debugRenderer.render(world, camera.combined.cpy().scale(util.getTileSize(), util.getTileSize(), 1));
-            world.step(1 / 60f, 6, 2);
-            sr.flush();
-            sr.end();
-        }
-
-        ScissorStack.popScissors();
+    @Override
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
     }
 
     public Level getLevel() {
@@ -316,5 +329,9 @@ public class Game extends ApplicationAdapter implements ContactListener {
 
     public void setEditor(Editor editor) {
         this.editor = editor;
+    }
+
+    public void dispose() {
+        stage.dispose();
     }
 }

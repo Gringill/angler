@@ -1,10 +1,5 @@
 package data;
 
-import java.util.ArrayList;
-
-import util.Util;
-import util.Vector2;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -15,9 +10,12 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonValue;
 import com.esotericsoftware.minlog.Log;
-
 import engine.Game;
 import engine.NodeMap;
+import util.Util;
+import util.Vector2;
+
+import java.util.ArrayList;
 
 public class Tile extends KineticObject {
 	public static final String DEFAULT_TEXTURE = "grass.png";
@@ -44,6 +42,14 @@ public class Tile extends KineticObject {
 		if (s != null) {
 			getSprite().setSize(game.getUtil().getTileSize(), game.getUtil().getTileSize());
 		}
+	}
+
+	public static Tile createDefaultTile(Game game, int x, int y) {
+		Sprite s = new Sprite(game.getLevel().getAtlas().findRegion(Util.removeExtention(DEFAULT_TEXTURE)));
+		Tile t = new Tile(game, Util.removeExtention(DEFAULT_TEXTURE), s, x, y);
+		Attribute.set(t, Attribute.ATTR_TEXTURE, PATH_DEFAULT + DEFAULT_TEXTURE);
+		t.generatePhysicsBody();
+		return t;
 	}
 
 	@Override
@@ -74,7 +80,7 @@ public class Tile extends KineticObject {
 	 * Pulls all attributes from the source tile and puts them into this tile,
 	 * effectively redefining this tile as an instance of the source tile. The
 	 * sprite field is cloned in a shallow manner.
-	 * 
+	 *
 	 * @param sourceTile
 	 * @return
 	 */
@@ -91,14 +97,6 @@ public class Tile extends KineticObject {
 		generatePhysicsBody();
 	}
 
-	public static Tile createDefaultTile(Game game, int x, int y) {
-		Sprite s = new Sprite(game.getLevel().getAtlas().findRegion(Util.removeExtention(DEFAULT_TEXTURE)));
-		Tile t = new Tile(game, Util.removeExtention(DEFAULT_TEXTURE), s, x, y);
-		Attribute.set(t, Attribute.ATTR_TEXTURE, PATH_DEFAULT + DEFAULT_TEXTURE);
-		t.generatePhysicsBody();
-		return t;
-	}
-
 	public void buildAttributes() {
 		myAttributes.clear();
 		myAttributes.add(Attribute.ATTR_TEXTURE);
@@ -107,12 +105,12 @@ public class Tile extends KineticObject {
 		myAttributes.add(Attribute.ATTR_NAME);
 	}
 
-	public void setColor(Color newColor) {
-		color = newColor;
-	}
-
 	public Color getColor() {
 		return color;
+	}
+
+	public void setColor(Color newColor) {
+		color = newColor;
 	}
 
 	@Override

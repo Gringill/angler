@@ -1,7 +1,5 @@
 package engine;
 
-import util.Vector2;
-
 public class Test {
 	public static String testGetBytes() {
 		

@@ -1,17 +1,14 @@
 package data;
 
-import java.util.ArrayList;
-
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-
-import util.Vector2;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.Json.Serializable;
 import com.badlogic.gdx.utils.JsonValue;
 import com.esotericsoftware.minlog.Log;
+import util.Vector2;
+
+import javax.swing.*;
+import java.util.ArrayList;
 
 public class Attribute extends JLabel implements Serializable {
 	public static final String ATTR_NAME = "Name";
@@ -41,9 +38,9 @@ public class Attribute extends JLabel implements Serializable {
 		ATTRIBUTES.add(ATTR_PATHABILITY);
 		ATTRIBUTES.add(ATTR_COLOR);
 	}
-	private boolean isDisabled;
 	String attribute;
 	String value;
+	private boolean isDisabled;
 
 	public Attribute() {
 	}
@@ -62,27 +59,6 @@ public class Attribute extends JLabel implements Serializable {
 			}
 		}
 		return list;
-	}
-
-	public String setAttribute(String attr) {
-		return attribute = attr;
-	}
-
-	public String setValue(String val) {
-		return value = val;
-	}
-
-	public String getAttribute() {
-		return attribute;
-	}
-
-	public String getValue() {
-		return value;
-	}
-
-	@Override
-	public String toString() {
-		return attribute + " - " + value;
 	}
 
 	public static String get(GameObject e, String attr) {
@@ -244,6 +220,27 @@ public class Attribute extends JLabel implements Serializable {
 			return false;
 		}
 		return false;
+	}
+
+	public String setAttribute(String attr) {
+		return attribute = attr;
+	}
+
+	public String setValue(String val) {
+		return value = val;
+	}
+
+	public String getAttribute() {
+		return attribute;
+	}
+
+	public String getValue() {
+		return value;
+	}
+
+	@Override
+	public String toString() {
+		return attribute + " - " + value;
 	}
 
 	public boolean isDisabled() {
