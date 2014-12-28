@@ -2,18 +2,14 @@ package engine;
 
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
+import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.*;
 import com.esotericsoftware.minlog.Log;
 import data.Entity;
-import data.GameObject;
 import data.Level;
+import gui.screens.GamePlay;
 import gui.screens.StageManager;
 import util.Util;
 import util.Vector2;
@@ -37,11 +33,8 @@ public class Game extends ApplicationAdapter implements ContactListener {
     public static final String ATLAS_NAME = "atlas0";
     public static final String COMMAND_MOVE = "COMMAND_MOVE";
     private StageManager stageManager;
-    private Level level;
-    private SpriteBatch batch;
-    private OrthographicCamera camera;
     private int width, height;
-    private ArrayList<Entity> selectedEntities = new ArrayList<Entity>();
+    private ArrayList<Entity> selectedEntities = new ArrayList<>();
     private World world;
     private Box2DDebugRenderer debugRenderer;
     private boolean drawBuildingPathing;
@@ -50,7 +43,7 @@ public class Game extends ApplicationAdapter implements ContactListener {
     private GameInputHandler inputHandler;
     private Minimap minimap;
     private Editor editor;
-    private ShapeRenderer sr;
+
 
     public Game(int width, int height) {
         this.width = width;
@@ -60,13 +53,11 @@ public class Game extends ApplicationAdapter implements ContactListener {
 
     @Override
     public void create() {
-//        TODO Init Physics
-//        world = new World(new Vector2(0, 0), true);
-//        world.setContactListener(this);
-//        debugRenderer = new Box2DDebugRenderer();
-        camera = new OrthographicCamera(width, height);
-        camera.position.set(Gdx.graphics.getWidth() / 2f, Gdx.graphics.getHeight() / 2f, 0);
-        (stageManager = new StageManager(width, height)).setStage(StageManager.STAGE_MAIN);
+        stageManager = new StageManager(width, height, this);
+        world = new World(new Vector2(0, 0), true);
+        world.setContactListener(this);
+        debugRenderer = new Box2DDebugRenderer();
+
         // TODO Handle input via stages
 
 //        if (editor != null) {
@@ -93,108 +84,35 @@ public class Game extends ApplicationAdapter implements ContactListener {
 //            });
 //        }
 //        TODO Implement default level
-//        Level level = Level.getDefaultLevel();
-//        Net.setupGameClient();
-//        loadLevel(level);
-//        inputHandler = new GameInputHandler(this);
-//        if (Gdx.input.getInputProcessor() == null) {
-//            Gdx.input.setInputProcessor(inputHandler);
-//        }
 
-//        TODO Init Rendering Managers
-//        sr = new ShapeRenderer();
-//        batch = new SpriteBatch(1000);
+//        Net.setupGameClient();
+
+
     }
 
     @Override
     public void render() {
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        processInput();
+
         stageManager.draw();
-//        processInput();
-//        camera.update();
-//        batch.setProjectionMatrix(camera.combined);
-//
-//        Rectangle scissors = new Rectangle();
-//        Rectangle clipBounds = new Rectangle(camera.position.x - width / 2f, camera.position.y - height / 2f, width, height);
-//        ScissorStack.calculateScissors(camera, batch.getTransformMatrix(), clipBounds, scissors);
-//        ScissorStack.pushScissors(scissors);
-//
-//        Gdx.gl.glClearColor(1, 1, 1, 1);
-//        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-//        if (getLevel() != null) {
-//            sr.setProjectionMatrix(camera.combined);
-//            batch.begin();
-//
-//            for (Tile[] ta : getLevel().getTileMap().getTiles()) {
-//                for (Tile t : ta) {
-//                    t.update();
-//                    t.draw(batch);
-//                }
-//            }
-//            if (editor.getSelectedTile() != null) {
-//                editor.getSelectedTile().drawSelection(batch);
-//            }
-//
-//            for (GameObject e : getLevel().getEntities()) {
-//                e.update();
-//                e.draw(batch);
-//            }
-//
-//            if (drawGrid) {
-//                for (int y = 0; y < editor.getCanvas().getHeight() / 50; y++) {
-//                    getUtil().drawLine(batch, 1, (y * 50), editor.getCanvas().getWidth(), (y * 50), 1);
-//                }
-//                for (int x = 0; x < editor.getCanvas().getWidth() / 50; x++) {
-//                    getUtil().drawLine(batch, (x * 50), 1, (x * 50), editor.getCanvas().getHeight(), 1);
-//                }
-//            }
-//
-//            batch.flush();
-//            batch.end();
-//
-//
-//            sr.begin(ShapeType.Line);
-//
-//            for (GameObject e : getLevel().getEntities()) {
-//                if (e.isSelected()) {
-//                    sr.circle(e.getX(), e.getY(), e.getSize() / 2f);
-//                }
-//            }
-//
-//            if (inputHandler.getDragBeginPoint() != null) {
-//                Vector2 mouseLocalCoords = new Vector2(Gdx.input.getX(), Gdx.input.getY());
-//                Vector2 mouseWorldCoords = getUtil().getMouseWorldCoords(mouseLocalCoords, true);
-//                mouseWorldCoords.x += (camera.position.x - camera.viewportWidth / 2);
-//                mouseWorldCoords.y += (camera.position.y - camera.viewportHeight / 2);
-//                Vector2 begin = inputHandler.getDragBeginPoint();
-//                sr.rect(begin.x, begin.y, mouseWorldCoords.x - begin.x, mouseWorldCoords.y - begin.y);
-//            }
-//
-//            debugRenderer.render(world, camera.combined.cpy().scale(util.getTileSize(), util.getTileSize(), 1));
-//            world.step(1 / 60f, 6, 2);
-//            sr.flush();
-//            sr.end();
-//        }
-//
-//        ScissorStack.popScissors();
     }
 
     @Override
     public void resize(int width, int height) {
-        stageManager.resize(width, height);
-    }
-
-    public Level getLevel() {
-        return level;
+        if(stageManager != null) {
+            stageManager.resize(width, height);
+        }
     }
 
     public void setLevel(Level level) {
-        this.level = level;
-        getUtil().setRectSprite(new Sprite(level.getAtlas().findRegion("white_pixel")));
-        for (GameObject e : getLevel().getEntities()) {
-            getMinimap().registerEntity(e);
-        }
+//        this.level = level;
+//        getUtil().setRectSprite(new Sprite(level.getAtlas().findRegion("white_pixel")));
+//        for (GameObject e : getLevel().getEntities()) {
+//            getMinimap().registerEntity(e);
+//        }
     }
 
     public Minimap getMinimap() {
@@ -202,54 +120,51 @@ public class Game extends ApplicationAdapter implements ContactListener {
     }
 
     private void processInput() {
-        if (getLevel() != null) {
-            if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-                camera.zoom += 0.02;
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
-                camera.zoom -= 0.02;
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-                if (camera.position.x > camera.viewportWidth / 2)
-                    camera.translate(-12, 0, 0);
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-                if (camera.position.x < (getLevel().getTileMap().getSize().width * 50) - (camera.viewportWidth / 2))
-                    camera.translate(12, 0, 0);
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
-                if (camera.position.y > camera.viewportHeight / 2)
-                    camera.translate(0, -10, 0);
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
-                if (camera.position.y < (getLevel().getTileMap().getSize().height * 50) - (camera.viewportHeight / 2))
-                    camera.translate(0, 10, 0);
-            }
-            if (camera.position.y > (getLevel().getTileMap().getSize().height * 50) - (camera.viewportHeight / 2))
-                camera.position.set(camera.position.x, (getLevel().getTileMap().getSize().height * 50) - (camera.viewportHeight / 2), 0);
-            if (camera.position.y < camera.viewportHeight / 2)
-                camera.position.set(camera.position.x, camera.viewportHeight / 2, 0);
-            if (camera.position.x > (getLevel().getTileMap().getSize().width * 50) - (camera.viewportWidth / 2))
-                camera.position.set((getLevel().getTileMap().getSize().width * 50) - (camera.viewportWidth / 2), camera.position.y, 0);
-            if (camera.position.x < camera.viewportWidth / 2)
-                camera.position.set(camera.viewportWidth / 2, camera.position.y, 0);
-        }
+//        if (getLevel() != null) {
+//            if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+//                camera.zoom += 0.02;
+//            }
+//            if (Gdx.input.isKeyPressed(Input.Keys.Q)) {
+//                camera.zoom -= 0.02;
+//            }
+//            if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+//                if (camera.position.x > camera.viewportWidth / 2)
+//                    camera.translate(-12, 0, 0);
+//            }
+//            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+//                if (camera.position.x < (getLevel().getTileMap().getSize().width * 50) - (camera.viewportWidth / 2))
+//                    camera.translate(12, 0, 0);
+//            }
+//            if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+//                if (camera.position.y > camera.viewportHeight / 2)
+//                    camera.translate(0, -10, 0);
+//            }
+//            if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+//                if (camera.position.y < (getLevel().getTileMap().getSize().height * 50) - (camera.viewportHeight / 2))
+//                    camera.translate(0, 10, 0);
+//            }
+//            System.out.println(getLevel().getTileMap());
+//            if (camera.position.y > (getLevel().getTileMap().getSize().height * 50) - (camera.viewportHeight / 2))
+//                camera.position.set(camera.position.x, (getLevel().getTileMap().getSize().height * 50) - (camera.viewportHeight / 2), 0);
+//            if (camera.position.y < camera.viewportHeight / 2)
+//                camera.position.set(camera.position.x, camera.viewportHeight / 2, 0);
+//            if (camera.position.x > (getLevel().getTileMap().getSize().width * 50) - (camera.viewportWidth / 2))
+//                camera.position.set((getLevel().getTileMap().getSize().width * 50) - (camera.viewportWidth / 2), camera.position.y, 0);
+//            if (camera.position.x < camera.viewportWidth / 2)
+//                camera.position.set(camera.viewportWidth / 2, camera.position.y, 0);
+//        }
     }
 
     public void select(Rectangle r) {
-        selectedEntities.clear();
-        for (Entity e : getLevel().getEntities()) {
-            if (r.contains(e.getPosition())) {
-                e.setSelected(true);
-                selectedEntities.add(e);
-            } else {
-                e.setSelected(false);
-            }
-        }
-    }
-
-    public OrthographicCamera getCamera() {
-        return camera;
+//        selectedEntities.clear();
+//        for (Entity e : getLevel().getEntities()) {
+//            if (r.contains(e.getPosition())) {
+//                e.setSelected(true);
+//                selectedEntities.add(e);
+//            } else {
+//                e.setSelected(false);
+//            }
+//        }
     }
 
     /**
@@ -300,9 +215,9 @@ public class Game extends ApplicationAdapter implements ContactListener {
 
     }
 
-    public float getGameWidth() {
-        return (float) level.getTileMap().getSize().getWidth() * util.getTileSize();
-    }
+//    public float getGameWidth() {
+//        return (float) level.getTileMap().getSize().getWidth() * util.getTileSize();
+//    }
 
     public float getGameHeight() {
         return 0;
@@ -310,10 +225,6 @@ public class Game extends ApplicationAdapter implements ContactListener {
 
     public Util getUtil() {
         return util;
-    }
-
-    public boolean isLoading() {
-        return batch == null;
     }
 
     public GameInputHandler getInputHandler() {
@@ -331,5 +242,17 @@ public class Game extends ApplicationAdapter implements ContactListener {
 
     public void dispose() {
         stageManager.dispose();
+    }
+
+    public StageManager getStageManager() {
+        return stageManager;
+    }
+
+    public Level getLevel() {
+        return ((GamePlay) getStageManager().getActiveStage()).getLevel();
+    }
+
+    public Camera getCamera() {
+        return getStageManager().getActiveStage().getCamera();
     }
 }

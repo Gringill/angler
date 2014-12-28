@@ -22,7 +22,7 @@ task dist(type: Jar) {
     from files(project.assetsDir);
  
     manifest {
-        attributes 'Main-Class': project.mainClassName
+        attributes 'Splash-Class': project.mainClassName
     }
 }
 

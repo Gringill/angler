@@ -12,6 +12,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.esotericsoftware.minlog.Log;
 import engine.Game;
 import engine.NodeMap;
+import gui.screens.GamePlay;
 import util.Util;
 import util.Vector2;
 
@@ -44,8 +45,8 @@ public class Tile extends KineticObject {
 		}
 	}
 
-	public static Tile createDefaultTile(Game game, int x, int y) {
-		Sprite s = new Sprite(game.getLevel().getAtlas().findRegion(Util.removeExtention(DEFAULT_TEXTURE)));
+	public static Tile createDefaultTile(Game game, Level level, int x, int y) {
+		Sprite s = new Sprite(level.getAtlas().findRegion(Util.removeExtention(DEFAULT_TEXTURE)));
 		Tile t = new Tile(game, Util.removeExtention(DEFAULT_TEXTURE), s, x, y);
 		Attribute.set(t, Attribute.ATTR_TEXTURE, PATH_DEFAULT + DEFAULT_TEXTURE);
 		t.generatePhysicsBody();

@@ -1,5 +1,6 @@
 package engine;
 
+import data.Level;
 import data.Tile;
 import util.Vector2;
 
@@ -12,6 +13,7 @@ public class TileMap {
 	private String[][] tiledef;
 	private NodeMap nodemap;
 	private Game game;
+	private Level level;
 
 	/**
 	 * A 2D array of strings defining what terrain is where. Used to populate
@@ -19,9 +21,11 @@ public class TileMap {
 	 */
 	private Tile[][] tiles;
 
-	public TileMap(int width, int height) {
+	public TileMap(Game game, Level level, int width, int height) {
 		this.width = width;
 		this.height = height;
+		this.game = game;
+		this.level = level;
 		tiles = new Tile[width][height];
 	}
 
@@ -31,8 +35,14 @@ public class TileMap {
 		height = tiledef[0].length;
 	}
 
-	public static TileMap createDefaultTileMap() {
-		return new TileMap(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+	public static TileMap createDefaultTileMap(Game game, Level level) {
+		TileMap tileMap = new TileMap(game, level, DEFAULT_WIDTH, DEFAULT_HEIGHT);
+		for (int y = 0; y < DEFAULT_HEIGHT; y++) {
+			for (int x = 0; x < DEFAULT_WIDTH; x++) {
+				tileMap.getTiles()[x][y] = Tile.createDefaultTile(game, level,  x, y);
+			}
+		}
+		return tileMap;
 	}
 
 	public void connectToGame(Game game) {
@@ -40,7 +50,7 @@ public class TileMap {
 		if (tiledef == null) {
 			for (int y = 0; y < height; y++) {
 				for (int x = 0; x < width; x++) {
-					tiles[x][y] = Tile.createDefaultTile(game, x, y);
+					tiles[x][y] = Tile.createDefaultTile(game, level, x, y);
 				}
 			}
 		} else {
@@ -62,7 +72,7 @@ public class TileMap {
 					}
 				}
 				if (tiles[x][y] == null) {
-					tiles[x][y] = Tile.createDefaultTile(game, x, y);
+					tiles[x][y] = Tile.createDefaultTile(game, level,  x, y);
 				}
 			}
 		}

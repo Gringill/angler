@@ -7,6 +7,8 @@ import com.badlogic.gdx.utils.Json;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import engine.Editor;
+import engine.Game;
+import engine.NodeMap;
 import engine.TileMap;
 import util.Util;
 
@@ -38,7 +40,7 @@ public class Level implements Json.Serializable {
     /**
      * A working list of entities to be updated and drawn with every cycle.
      */
-    private ArrayList<Entity> entities = new ArrayList<Entity>();
+    private ArrayList<Entity> entities = new ArrayList<>();
 
     /**
      * Required for JSON. Should not be used otherwise unless you know what you
@@ -48,8 +50,12 @@ public class Level implements Json.Serializable {
 
     }
 
-    private Level(String name, TileMap tilemap) {
-        this.tilemap = tilemap;
+    private Level(Game game, TileMap tilemap) {
+        if(tilemap == null) {
+            this.tilemap = TileMap.createDefaultTileMap(game, this);
+        } else {
+            this.tilemap = tilemap;
+        }
     }
 
     /**
@@ -58,11 +64,11 @@ public class Level implements Json.Serializable {
      * @param height in grid units
      * @return the created level
      */
-    public static Level createLevel(String name, Integer width, Integer height, Editor editor) {
-        Level level = new Level(name, new TileMap(width, height));
+    public static Level createLevel(Game game, String name, Integer width, Integer height, Editor editor) {
+        Level level = new Level(game, null);
         editor.getGame().setLevel(level);
         level.getTileMap().connectToGame(editor.getGame());
-        defineDefaultData(editor, level);
+        defineDefaultData();
         return level;
     }
 
@@ -70,13 +76,13 @@ public class Level implements Json.Serializable {
      * Convenience method that creates a new level with a predefined default set
      * of attributes.
      */
-    public static Level getDefaultLevel(Editor editor) {
-        Level level = new Level("default_level", TileMap.createDefaultTileMap());
-        defineDefaultData(editor, level);
+    public static Level getDefaultLevel(Game game) {
+        Level level = new Level(game, null);
+//        TODO defineDefaultData();
         return level;
     }
 
-    private static void defineDefaultData(Editor editor, Level level) {
+    private static void defineDefaultData() {
 //        editor.initializeObjectEditor();
 //        editor.getObjectEditor().newTile("Grass", null, NodeMap.PATH_GROUND, new Color(0, 255, 0));
 //        editor.getObjectEditor().newTile("Water", "water", NodeMap.PATH_SWIMMING, new Color(0, 0, 255));

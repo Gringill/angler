@@ -48,30 +48,7 @@ public class Editor {
     }
 
     private void defineNorth() {
-//        JPanel pan_north = new JPanel();
-//        pan_north.setLayout(new BoxLayout(pan_north, BoxLayout.X_AXIS));
-//
-//        btn_toggleObject.setIcon(new ImageIcon(Util.readBufferedImage("core/assets/unpacked/ic_entity.png").getScaledInstance(25, 25, BufferedImage.SCALE_SMOOTH)));
-//        btn_toggleObject.setSelectedIcon(new ImageIcon(Util.readBufferedImage("core/assets/unpacked/ic_tile.png").getScaledInstance(25, 25, BufferedImage.SCALE_SMOOTH)));
-//        btn_toggleObject.setToolTipText("Toggle object mode between entity and tile");
-//        btn_toggleObject.setFocusable(false);
-//        pan_north.add(btn_toggleObject);
-//
-//        btn_toggleSelection.setIcon(new ImageIcon(Util.readBufferedImage("core/assets/unpacked/circle_empty.png").getScaledInstance(25, 25, BufferedImage.SCALE_SMOOTH)));
-//        btn_toggleSelection.setSelectedIcon(new ImageIcon(Util.readBufferedImage("core/assets/unpacked/circle_filled.png").getScaledInstance(25, 25, BufferedImage.SCALE_SMOOTH)));
-//        btn_toggleSelection.setToolTipText("Toggle selection mode between paint and select");
-//        btn_toggleSelection.setFocusable(false);
-//        pan_north.add(btn_toggleSelection);
-//
-//        btn_toggleInput.setIcon(new ImageIcon(Util.readBufferedImage("core/assets/unpacked/gear.png").getScaledInstance(25, 25, BufferedImage.SCALE_SMOOTH)));
-//        btn_toggleInput.setSelectedIcon(new ImageIcon(Util.readBufferedImage("core/assets/unpacked/soccer.png").getScaledInstance(25, 25, BufferedImage.SCALE_SMOOTH)));
-//        btn_toggleInput.setToolTipText("Toggle mode between game and editor");
-//        btn_toggleInput.setFocusable(false);
-//        pan_north.add(btn_toggleInput);
-//
-//        pan_north.add(cb_pathing);
-//        pan_north.add(cb_grid);
-//        getContentPane().add(pan_north, BorderLayout.NORTH);
+
     }
 
     private void defineSouth() {
