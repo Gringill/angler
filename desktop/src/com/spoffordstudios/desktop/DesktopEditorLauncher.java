@@ -2,8 +2,8 @@ package com.spoffordstudios.desktop;
 
 import com.badlogic.gdx.backends.lwjgl.LwjglCanvas;
 import com.badlogic.gdx.tools.texturepacker.TexturePacker;
-import engine.Editor;
-import engine.Game;
+import controller.Editor;
+import controller.Game;
 
 @Deprecated
 public class DesktopEditorLauncher {

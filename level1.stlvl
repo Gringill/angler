@@ -2,7 +2,7 @@
 mod_entity: {
 	delegate: [
 		{
-			class: com.spoffordstudios.engine.Entity,
+			class: com.spoffordstudios.controller.Entity,
 			attributes: [
 				{
 					class: com.spoffordstudios.game.Attribute,
@@ -67,7 +67,7 @@ mod_entity: {
 mod_tile: {
 	delegate: [
 		{
-			class: com.spoffordstudios.engine.Tile,
+			class: com.spoffordstudios.controller.Tile,
 			attributes: [
 				{
 					class: com.spoffordstudios.game.Attribute,
@@ -101,7 +101,7 @@ mod_tile: {
 },
 entities: [
 	{
-		class: com.spoffordstudios.engine.Entity,
+		class: com.spoffordstudios.controller.Entity,
 		attributes: [
 			{
 				class: com.spoffordstudios.game.Attribute,
@@ -161,7 +161,7 @@ entities: [
 		]
 	},
 	{
-		class: com.spoffordstudios.engine.Entity,
+		class: com.spoffordstudios.controller.Entity,
 		attributes: [
 			{
 				class: com.spoffordstudios.game.Attribute,
